@@ -16,6 +16,7 @@ sudo pip install -U scikit-learn
 sudo pip install pandas
 sudo pip install tensorflow
 sudo pip install flask flask-cors
+sudo pip install requests
 
 curl -O http://nlp.stanford.edu/software/stanford-corenlp-full-2016-10-31.zip
 unzip stanford-corenlp-full-2016-10-31.zip

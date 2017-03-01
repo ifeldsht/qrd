@@ -4,7 +4,6 @@ set hlsearch
 set incsearch
 set title
 syntax on
-set autoindent
 set confirm
 set number
 set expandtab
