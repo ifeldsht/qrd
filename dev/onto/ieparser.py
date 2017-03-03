@@ -1,5 +1,5 @@
 import json
-import itertools
+from itertools import combinations
 
 def load(file_name):
     with open(file_name,"r") as f:
@@ -25,9 +25,46 @@ def read(data):
     R = [[coref(rr) for rr in data["corefs"][r]] for r in data["corefs"]]
     return {"sentences":S,"corefs":R}
 
+def graph(T,comment=""):
+    def node(c,i):
+        return {"caption":c,"id":i}
+    def edge(c,s,t):
+        return {"source":s,"target":t,"caption":c}
+    #
+    A = { "comment":comment, "nodes":[], "edges":[] }
+    A["nodes"].append(node(comment,0))
+    counter = 0
+    connected_subjs = []
+    sentences = T["sentences"]
+    for s in sentences:
+        counter += 1
+        base = counter * 1000
+        A["nodes"].append(node("S"+str(counter),base))
+        A["edges"].append(edge("",0,base))
+        oie = sentences[s]["oie"]
+        for o in oie:
+            i = base + o["subj"]["ind"][0] #TODO
+            j = base + o[ "obj"]["ind"][0]
+            A["nodes"].append(node(o["subj"]["txt"],i))
+            A["nodes"].append(node(o[ "obj"]["txt"],j))
+            A["edges"].append(edge(o[ "rel"]["txt"],i,j))
+            if i not in connected_subjs:
+                A["edges"].append(edge("",i,base))
+                connected_subjs.append(i)
+    corefs = T["corefs"]
+    for refs in corefs:
+        comb = list(combinations([(r[0],r[1]) for r in refs],2))
+        for c in comb:
+            id1 = 1000 * c[0][0] + c[0][1]
+            id2 = 1000 * c[1][0] + c[1][1]
+            A["edges"].append(edge("coref",id1,id2))
+    return A
+
+
+
 # for tests:
 if __name__=="__main__":
     import sys
     x = read(load(sys.argv[1]))
-    print json.dumps(x, indent=4, sort_keys=True )
+    print json.dumps(graph(x,"QWERTY"), indent=4, sort_keys=True )
  

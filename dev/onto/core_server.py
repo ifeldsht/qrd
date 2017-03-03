@@ -24,6 +24,7 @@ def CoreNLPConnector():
         text = data['text']
         cnlp = json.loads(CoreNLP(text))
         res  = ieparser.read(cnlp)
+        res  = ieparser.graph(res,"QQQQQQQ")
         return json.dumps({"ok":True,"text":text,"structure":res})
     else:
         return json.dumps({"ok":False})
