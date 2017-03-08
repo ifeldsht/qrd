@@ -8,6 +8,8 @@ sudo apt-get -y install zip unzip
 sudo apt-get -y install screen
 sudo apt-get -y install vim
 sudo apt-get -y install apache2
+sudo apt-get -y install awscli
+sudo apt-get -y install maven
 
 sudo pip install numpy
 sudo pip install scipy
@@ -17,10 +19,12 @@ sudo pip install pandas
 sudo pip install tensorflow
 sudo pip install flask flask-cors
 sudo pip install requests
+sudo pip install gensim
 
 curl -O http://nlp.stanford.edu/software/stanford-corenlp-full-2016-10-31.zip
 unzip stanford-corenlp-full-2016-10-31.zip
 mv stanford-corenlp-full-2016-10-31 corenlp
+sudo mv corenlp /opt
 rm stanford-corenlp-full-2016-10-31.zip
 
 sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
