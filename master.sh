@@ -10,6 +10,7 @@ sudo apt-get -y install vim
 sudo apt-get -y install apache2
 sudo apt-get -y install awscli
 sudo apt-get -y install maven
+sudo apt-get -y install postgresql postgresql-contrib
 
 sudo pip install numpy
 sudo pip install scipy
@@ -31,3 +32,7 @@ sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
 echo "deb http://repo.mongodb.org/apt/ubuntu "$(lsb_release -sc)"/mongodb-org/3.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list
 sudo apt-get install -y mongodb
 
+curl -O http://mirror.cc.columbia.edu/pub/software/apache/nutch/1.12/apache-nutch-1.12-bin.zip
+unzip apache-nutch-1.12-bin.zip 
+mv apache-nutch-1.12 nutch
+sudo mv nutch /opt 
