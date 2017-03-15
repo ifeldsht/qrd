@@ -21,6 +21,7 @@ sudo pip install tensorflow
 sudo pip install flask flask-cors
 sudo pip install requests
 sudo pip install gensim
+sudo pip install psycopg2
 
 curl -O http://nlp.stanford.edu/software/stanford-corenlp-full-2016-10-31.zip
 unzip stanford-corenlp-full-2016-10-31.zip
