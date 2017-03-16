@@ -11,6 +11,8 @@ sudo apt-get -y install apache2
 sudo apt-get -y install awscli
 sudo apt-get -y install maven
 sudo apt-get -y install postgresql postgresql-contrib
+sudo apt-get -y install nodejs-legacy
+sudo apt-get -y install npm
 
 sudo pip install numpy
 sudo pip install scipy
