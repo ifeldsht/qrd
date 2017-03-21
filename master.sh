@@ -13,6 +13,7 @@ sudo apt-get -y install maven
 sudo apt-get -y install postgresql postgresql-contrib
 sudo apt-get -y install nodejs-legacy
 sudo apt-get -y install npm
+sudo apt-get -y install lynx
 
 sudo pip install numpy
 sudo pip install scipy
