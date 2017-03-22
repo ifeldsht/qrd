@@ -39,4 +39,11 @@ sudo apt-get install -y mongodb
 curl -O http://mirror.cc.columbia.edu/pub/software/apache/nutch/1.12/apache-nutch-1.12-bin.zip
 unzip apache-nutch-1.12-bin.zip 
 mv apache-nutch-1.12 nutch
-sudo mv nutch /opt 
+sudo mv nutch /opt
+
+curl -O http://apache.mirrors.tds.net/hadoop/common/hadoop-2.7.3/hadoop-2.7.3.tar.gz
+tar -xzvf hadoop-2.7.3.tar.gz
+sudo mv hadoop-2.7.3 /usr/local/hadoop
+rm hadoop-2.7.3.tar.gz
+
+ 
