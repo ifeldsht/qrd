@@ -1,50 +1,38 @@
-ct_url="https://clinicaltrials.gov"
-search_url=$ct_url"/ct2/results?term=cancer&pg="
+ct_url="https://clinicaltrials.gov/ct2/crawl"
+log_file=ct_crawler.log
 
-for page in {2..2}
+lynx -dump -listonly $ct_url | \
+    grep "/ct2/crawl/"       | \
+    cut -b 1-6 --complement  | \
+    while read list_url
 do
-  echo $page
+    prev=$(grep $list_url $log_file)
+    if [ "$prev" == "" ]
+    then
+        list_id=$(echo $list_url | cut -d'/' -f6)
+        mkdir -p $list_id
+        lynx -dump -listonly $list_url | \
+            grep "/ct2/show/NCT"       | \
+            cut -b 1-6 --complement    | \
+            while read trial_url        
+            do
+                trial_id=$(echo $trial_url | cut -d'/' -f6)
+                trial_url_desc=$trial_url"?show_desc=Y#desc"
+                desc=$(lynx -dump "$trial_url_desc" | \
+                 sed 's/^ *//g'                | \
+                 sed '/^Detailed Description:$/,/^Eligibility$/{//!b};d')
+                out_str=\"trial_url\":\"$trial_url\",
+                out_str="{"$out_str\"description\":\"$desc\""}"
+                echo $out_str > $list_id/$trial_id".json"
+                sleep 0.1
+            done
+        tar -zcf $list_id".tar.gz" $list_id
+        rm -r $list_id
+        echo $list_url >> $log_file
+    else
+        echo "Skipping " $list_url
+    fi
 
-  lynx -listonly -dump $search_url$page | \
-      grep "gov/ct2/show"               | \
-      cut -b 1-6 --complement           | \
-      while read trial_url
-  do
-    out_str=\"trial_url\":\"$trial_url\",
-    
-    desc=$(lynx -dump $trial_url | \
-      sed 's/^ *//g'             | \
-      sed '/^Detailed Description:$/,/^Eligibility$/{//!b};d')
-
-    out_str=$out_str\"description\":\"$desc\",
-
-    purp=$(lynx -dump $trial_url | \
-      sed 's/^ *//g'             | \
-      sed '/^Purpose$/,/^\[.*\]Condition$/{//!b};d')
-
-    out_str=$out_str\"purpose\":\"$purp\"
-
-    counter=0
-    abs_str="\"abstracts\":["
-    lynx -listonly -dump $trial_url | \
-      grep "/ct2/bye"               | \
-      cut -b 1-6 --complement       | \
-      while read url_abs
-      do
-        #echo $url_abs
-        abst=$(lynx -dump $url_abs  | \
-          sed 's/^[ ]*//g'          | \
-          sed '/^Abstract$/,/^PMID:$/{//!b};d')
-        if ((counter>0))
-        then
-          abs_str=$abs_str","
-        fi
-        ((counter++))
-        abs_str=$abs_str"{\"abstract_url\":\""$url_abs"\","
-        abs_str=$abs_str"\"abstract\":\""$abst"\"}"
-      done
-      abs_str=$abs_str"]"
-      echo "{"$out_str $abs_str"}" > a.txt
-      exit
-  done
 done
+
+
