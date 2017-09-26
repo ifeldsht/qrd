@@ -14,6 +14,7 @@ sudo apt-get -y install apache2
 #sudo apt-get -y install nodejs-legacy
 #sudo apt-get -y install npm
 sudo apt-get -y install lynx
+sudo apt-get -y install texlive-full
 
 sudo pip install numpy
 sudo pip install scipy
