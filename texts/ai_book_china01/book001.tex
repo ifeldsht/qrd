@@ -1,0 +1,43 @@
+\documentclass[12pt]{book}
+\usepackage{geometry}
+\usepackage{qtree}
+\usepackage{float}
+\usepackage{enumerate}
+\usepackage{listings}
+\usepackage{tcolorbox}
+\usepackage{mdframed}
+\title{Book 1}
+\author{I.F.}
+
+\definecolor{darkgrey}{RGB}{32,32,32}
+\definecolor{lstbg}{RGB}{252,243,207}
+
+\lstdefinelanguage{JavaScript}{
+  keywords={typeof, new, true, false, catch, function, return, null, switch, var, if, in, while, do, else, case, break, for},
+  keywordstyle=\bfseries,
+  ndkeywords={class, export, boolean, throw, implements, import, this},
+  ndkeywordstyle=\color{gray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/}
+}
+
+\lstdefinestyle{codelst} {
+  language=Python,
+  showspaces=false, 
+  showstringspaces=false,
+  frame=single,
+  numbers=left,
+  backgroundcolor=\color{lstbg} 
+}
+
+\newmdenv[topline=false,rightline=false]{leftborder}
+
+\begin{document}
+\maketitle
+\tableofcontents{}
+
+\include{book00101}
+
+\end{document}
