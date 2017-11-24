@@ -10,23 +10,23 @@ import edu.stanford.nlp.ling.CoreAnnotations.*;
 import edu.stanford.nlp.util.*;
 
 public class CNLPParseTreeProcessor {
-    StanfordCoreNLP pipline;
+    StanfordCoreNLP pipeline;
     List<String> buffer;
     
     CNLPParseTreeProcessor() {
         buffer = new ArrayList<>();
         Properties pr = new Properties();
-        pr.setProperty("annotators","tokenize,ssplit,pos,lemma,mer,parse");
+        pr.setProperty("annotators","tokenize,ssplit,pos,lemma,ner,parse");
         pipeline = new StanfordCoreNLP(pr);
     }
 
     List<CoreMap> processText(String text) {
-        Annotatopn annotation = new Annotation(text);
+        Annotation annotation = new Annotation(text);
         pipeline.annotate(annotation);
         return annotation.get(SentencesAnnotation.class);
     }
 
-    List<String> splitText(Tree T) {
+    List<String> splitTree(Tree T) {
         buffer.clear();
         fillBuffer(T);
         return buffer;
