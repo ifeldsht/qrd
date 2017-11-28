@@ -1,0 +1,78 @@
+\chapter{Labyrinths}
+
+Let's apply tree navigation techniques to an old problem
+of finding path in a maze. For the beginning we'll be assuming that
+maze is known (we have full description of a maze before we start),
+and that maze doesn't contain loops.
+
+\begin{labyrinth}{3}{4}
+        \h -++
+\v ++-- \h ---
+\v ++++ \h --+
+\v +--+ \h +++
+\end{labyrinth}
+\begin{labyrinth}{3}{4}
+        \h -++
+\v +-+- \h ---
+\v ++++ \h ---
+\v +--+ \h +++
+\labyrinthsolution(0,1){uurddl}
+\end{labyrinth}
+
+Compare two mazes from the figure above. The top one doesn't have
+loops. 
+
+Our goal is to find a path in the maze from Entrance to Exit:
+
+////////
+
+The first question we need to answer is about the maze description.
+The answer comes from the following observation: every time we
+make a decision navigating the maze we make it from a finite set
+of choices:
+////////
+When we are in location A we can move to location B, when in B we can move to C or D.
+Let's enumerate all locations and list all possible moves:
+////////
+$$Entrance\rightarrow 1,\ 1\rightarrow 4,\ 
+4\rightarrow 7,\ 7\rightarrow 8,\ 8\rightarrow 5\ or\ 9,
+5\rightarrow 2,\ 2\rightarrow 3,\ 3\rightarrow 6\ or\ Exit.$$
+
+This structure is know from the previous chapter. It's a tree:
+
+\begin{figure}[H]
+\centering
+\Tree[ .Entrance [ .1 [ .4 [ .7 [ .8 [ [ .5 [ .2 [ 3. [ 6 Exit ] ] ] ] 9 ] ] ] ] ] ] 
+\end{figure}
+
+Assignment: describe this tree in Python and print the path from
+Entrance to Exit.
+
+The maze from the Figure 1?? is small and it's easy to describe it by
+manually tracing all possible moves.
+For bigger mazes we need an automated way of extracting trees
+from schematic representations.
+For the maze above this can be something like this:
+
+0100000
+0101111
+0101010
+0101000
+0111110
+0000000
+
+Zeros represent walls and ones represent paths. You may find that the
+size -- number of elements -- is different. This is the cost of introducing
+walls -- they have a size on the scheme. Extracting a maze from an
+image file (scanned or drawn) is technically possible, but difficult.
+
+You can define the scheme of a maze inside your Python program, but
+more flexible would be to save schemas as text files and have one
+program that can work with different mazes. Now we need to learn how
+to use files in Python.
+
+\section{Python: input/output}
+
+Simple type
+
+
