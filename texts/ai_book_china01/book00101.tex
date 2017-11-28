@@ -86,12 +86,7 @@ Our first task will be finding path to your classroom
 given the tree from Figure 1.2.
 
 Before we can approach the task let's get familiar with
-programming tools we'll be using in the project: Python or
-JavaScript (JS). You can choose either one,
-but you are encouraged to try both of them.
-Both languages have own strengths, and you may find that
-experience in two languages give you some flexibility in
-approaching real life programming problems.
+programming language we'll be using in the project: Python.
 
 \section{Programming -- basic concepts}
 
@@ -147,36 +142,6 @@ python HelloWorld.py
 \end{lstlisting}
 \end{tcolorbox}
 
-\subsubsection{JavaScript}
-JavaScript (JS) code is usually executed in a web browser
-and output is shown in a browser window. For the beginning --
-before we start implementing interfaces and
-visualization -- we'll be using the following template:
-
-\begin{lstlisting}[style=codelst,language=HTML]{JavaScript: HTML file template}
-<html><body><pre><script>
-// your code below this line
-...
-// your code above this line
-</script></pre></body></html>
-\end{lstlisting}
-First and last lines contain HTML tags.
-Here is "Hello world!":
-
-\begin{lstlisting}[style=codelst,language=HTML]{JavaScript: Hello World!}
-<html><body><pre><script>
-document.writeln("Hello world!");
-</script></pre></body></html>
-\end{lstlisting}
-\textbf{We'll be skipping first and last line in JavaScript
-code listings. Please use this template for your files.}
-
-\bigskip
-\begin{tcolorbox}
-\textbf{Assignment:} Create file HelloWorld.html, enter the text from the
-listing above and open this file in your browser.
-\end{tcolorbox}
-
 \subsection{Basic types and operations}
 
 The following listing shows very basic operations
@@ -223,44 +188,6 @@ L2 = L[::-1]
 print L, L2
 \end{lstlisting}
 Lines started with \# are comments, they are not executed.
-
-JavaScript version:
-\begin{lstlisting}[style=codelst,language=JavaScript]
-// Bolean
-b = true;
-
-// Integer number
-x = 2;
-
-// Float number
-y = 1.23;
-
-// String
-s = "Abc";
-
-// List of numbers:
-L = [1,2,3,4,5];
-
-// print everything:
-document.writeln( b, x, y, s, L );
-
-// Operations:
-b2 = !b;
-document.writeln( b, b2 );
-
-x2 = x * 31;
-document.writeln( x, x2 );
-
-y2 = y*y;
-document.writeln( y, y2 );
-
-s2 = s.lower();
-document.writeln( s, s2 );
-
-L2 = L.reverse(); 
-document.writeln( L, L2 );
-\end{lstlisting}
-
 
 \section{How to navigate a tree}
 
@@ -339,139 +266,63 @@ Here is how we define
 the upper part of the tree:
 
 \medskip
-\textbf{(Street, (Cinema,School,Police))}
+\textbf{(Street, (Cinema,School))}
 \medskip
 
 Adding one more layer:
 
 \medskip
-\textbf{(Street, ((Cinema,(Ticket office, Restroom, Sale)), (School,(Left stair, Right stair)), (Police,(Entrance))))}
+\textbf{(Street, ((Cinema,(Ticket office)), (School,(Left stair, Right stair))))}
 \medskip
 
-It doesn't look convenient and transparent. What would help is the data type
-that associate a node name with a list of children
+It doesn't look convenient and transparent, adding one more layer
+will make the description not readable. 
+What would help is describing the tree incrementally - node by node:
 
-This data type exists, it's called Dictionary or Map depending on the implementation.
-It allows for example the following assignment:
+Tree1 = (Left stair,[])
 
-\medskip
-\textbf{T["Street"] = ["School","Cinema"]}
-\medskip
+Tree2 = (Right stair,[]) 
 
-This resembles a list with non-integer indices of elements.
-\textbf{ When we get familiar with a notion of class we'll
-find other way to define a tree structure. }
+Tree3 = (School,[Tree1,Tree2])
 
-Our tree from Figure 2 can be defined in this way:
+Let's see what wee did. We created Tree1 as a pair of the node
+name and the list of children (this list is empty, as for this example
+stairs are terminal nodes -- they don't have children). 
+The same is for Tree2. The list for Tree3 is not empty, it's constructed
+from two previously defined trees -- we reuse trees to avoid
+nested definitions. 
 
-\begin{lstlisting}[style=codelst,language=Python]
-T["Street"]=["School","Cinema"]
-T["Cinema"]=["Ticket office"]
-T["School"]=[ "Left stair", "Right stair"]
-T["Left stair"]=["Basement", "Gym"]
-T["Right stair"]=["2nd floor", "3rd floor"]
-T["2nd floor"]=["Library", "Restroom"]
-T["3rd floor"]=["Math classroom", "Library", "Chemical lab"]
-\end{lstlisting}
+The remaining part of the description:
 
-Everything looks good except where it doesn't:
-the descriptive name of a node
-may not be unique. For example Cinema may have
-a restroom, and both restrooms
-(in the School and in the Cinema) may have
-children nodes "M" and "W".
+Tree4 = (Ticket office,[])
 
-The tree definition must preserve the path to each node from the root node.
--- something similar to our first approach but more convenient.
-The approach we'll be using in the beginning is a simple one,
-but it give us a tool without going into advanced topics
-in programming - we'll be using nested dictionaries, or dictionaries
-of dictionaries:
+Tree5 = (Cinema,[Tree4])
 
-Let's initialize empty tree
+Tree6 = (Street,[Tree3,Tree5])
 
-\medskip
-T = \{\}
-\medskip
-
-... and create root node that points to own empty tree
-
-\medskip
-T["Street"] = \{\}
-\medskip
-
-... and the same for all three child nodes:
-
-\medskip
-T["Street"]["Cinema"] = \{\}
-
-T["Street"]["School"] = \{\}
-\medskip
-
-... and for the stair in school
-
-\medskip
-T["Street"]["School"]["Right stair"] = \{\}
-\medskip
-
-... and for the floor
-
-\medskip
-T["Street"]["School"]["Right stair"]["3rd floor"] = \{\}
-\medskip
-
-... and for the classroom - it'll remain empty as classroom is the terminal node
-
-\medskip
-T["Street"]["School"]["Right stair"]["3rd floor"]["Math class"] = \{\}
-\medskip
 
 Here is the full initialization for the tree from Figure 1.3 in Python and JS:
 
-\begin{lstlisting}[style=codelst,basicstyle=\footnotesize,language=Python]{Python: tree description}
-T["Street"]={}
-T["Street"]["School"]={}
-T["Street"]["Cinema"]={}
-T["Street"]["Cinema"]["Ticket office"]={}
-T["Street"]["School"]["Left stair"]={}
-T["Street"]["School"]["Right stair"]={}
-T["Street"]["School"]["Left stair"]["Basement"]={}
-T["Street"]["School"]["Left stair"]["Gym"]={}
-T["Street"]["School"]["Right stair"]["2nd floor"]={}
-T["Street"]["School"]["Right stair"]["3rd floor"]={}
-T["Street"]["School"]["Right stair"]["2nd floor"]["Library"]={}
-T["Street"]["School"]["Right stair"]["2nd floor"]["Restroom"]={}
-T["Street"]["School"]["Right stair"]["3rd floor"]["Math classroom"]={}
-T["Street"]["School"]["Right stair"]["3rd floor"]["Library"]={}
-T["Street"]["School"]["Right stair"]["3rd floor"]["Chemical lab"]={}
-print T
+\begin{lstlisting}[style=codelst,language=Python]{Python: tree description}
+
+Tree1 = ("Math classroom",[])
+Tree2 = ("Library",[])
+Tree3 = ("Chemical lab",[])
+Tree4 = ("Library",[])
+Tree5 = ("Restroom",[])
+Tree6 = ("2nd floor",[Tree4,Tree5])
+Tree7 = ("3rd floor",[Tree1,Tree2,Tree3])
+Tree8 = ("Right stair",[Tree6,Tree7])
+Tree9 = ("Basement",[])
+Tree10 = ("Gym",[])
+Tree11 = ("Left stair",[Tree9,Tree10])
+Tree12 = ("School",[Tree8,Tree11])
+Tree13 = ("Ticket office",[])
+Tree14 = ("Cinema",[Tree13])
+Tree15 = ("Street",[Tree12,Tree14])
+
+print Tree15
 \end{lstlisting}
-
-\begin{lstlisting}[style=codelst,basicstyle=\footnotesize,language=HTML]{JavaScript: tree description}
-T["Street"]={};
-T["Street"]["School"]={};
-T["Street"]["Cinema"]={};
-T["Street"]["Cinema"]["Ticket office"]={};
-T["Street"]["School"]["Left stair"]={};
-T["Street"]["School"]["Right stair"]={};
-T["Street"]["School"]["Left stair"]["Basement"]={};
-T["Street"]["School"]["Left stair"]["Gym"]={};
-T["Street"]["School"]["Right stair"]["2nd floor"]={};
-T["Street"]["School"]["Right stair"]["3rd floor"]={};
-T["Street"]["School"]["Right stair"]["2nd floor"]["Library"]={};
-T["Street"]["School"]["Right stair"]["2nd floor"]["Restroom"]={};
-T["Street"]["School"]["Right stair"]["3rd floor"]["Math classroom"]={};
-T["Street"]["School"]["Right stair"]["3rd floor"]["Library"]={};
-T["Street"]["School"]["Right stair"]["3rd floor"]["Chemical lab"]={};
-document.writeln(T);
-\end{lstlisting}
-
-Note that the differences between Python and JS are so far only in the
-printing and semi-columns in the end of statements.
-Work with dictionaries is similar for both of them.
-
-Now if now we want to add a node with already existing name (for example
-a Restroom to Cinema) we can do this preserving the unique path to a node.
 
 The next step is to learn how to use this tree representation to navigate
 a tree. Our first task is to go through all nodes and print their names.
@@ -494,7 +345,7 @@ steps of searching node 6 in
 the Figure 1.3 
 \end{tcolorbox}
 
-Now we need to learn about functions in Python and JS
+Now we need to learn about functions in Python
 
 \section{Programming: functions, conditions, loops}
 \subsection{Functions in Python}
@@ -579,87 +430,6 @@ Add printing value of x in different parts of the code
 to check your answer.
 \end{tcolorbox}
 
-\subsection{Functions in JavaScript}
-
-We are using keyword "function" to declare new function, list of parameters in
-parenthesis, and body of function in \{\}
-For example:
-
-\begin{lstlisting}[style=codelst,language=JavaScript]{JavaScript: simple function}
-function f(x) {
-  return x*x;
-}
-\end{lstlisting}
-
-Here we've declared function \textbf{f}, taking one parameter \textbf{x},
-and returning the square of the parameter. The function
-can fail if multiplication is not defined for the parameter \textbf{x} -
-if it's a string for example.
-
-Unlike Python JS doesn't require strict formatting - you need to
-make sure to put semi-column in the end of a statements. Consider the
-following code:
-
-\begin{lstlisting}[style=codelst,language=JavaScript]{JavaScript: visibility of variables}
-var x = 1;
-
-funstion f(x) {
-    var x2 = 2*x;
-    return x2;
-}
-
-function g() {
-    var x2 = 2*x;
-    return x2
-}
-
-document.writeln(f(2));
-document.writeln(g());
-\end{lstlisting}
-First we've initialized variable \textbf{x} (line 1). Then we've
-defined two functions:
-
-\begin{enumerate}
-\item \textbf{f} that takes a parameters with the same
-name \textbf{x} and returns \textbf{2*x}. The variable x initialized on
-the line 1 doesn't affect this function and when we call
-the function (line 13) the variable \textbf{x} known to
-the function f is equal 2.
-\item \textbf{g} that doesn't take a parameter and returns \textbf{2*x} for
-any \textbf{x} defined before the function call. In this case \textbf{g}
-takes \textbf{x=1} defined on the line 1.
-\end{enumerate}
-
-Functions in JavaScript can be nested - one function can be defined in
-the body of other function:
-
-\begin{lstlisting}[style=codelst,language=JavaScript]{JavaScript: nested functions}
-var x = 1;
-
-function f(x) {
-    x = 2*x;
-    function g(x) {
-        x = x+1;
-        return x;
-    }
-    return x + g(7);
-}
-
-document.writeln(f(2))
-\end{lstlisting}
-
-There are three independent variables \textbf{x} here.
-
-Note keyword \textbf{var} - we'll be using it to declare new variables.
-
-\bigskip
-\begin{tcolorbox}
-\textbf{Assignment:}
-What are values of x when you are on the lines 1, 4, 6?
-Add printing value of x in different parts of the code
-to check your answer.
-\end{tcolorbox}
-
 \subsection{Recursion}
 
 To solve our problem and print tree node names we need
@@ -724,25 +494,7 @@ and print accordingly.
 \item For all other cases (\textbf{n} is not 1 or 2) we use keyword \textbf{else}.
 \end{itemize}
 
-the same in JavaScript:
-\begin{lstlisting}[style=codelst,language=JavaScript]{JavaScript: conditional statements}
-n = 1;
-if( n == 1 ) {
-  document.writeln("one");
-} else if( n == 2 ) {
-  document.writeln("two");
-} else {
-  document.writeln("not one or two");
-}
-\end{lstlisting}
-
-Note that \textbf{if} statements both in Python and in JavaScript
-define own scope. In Python you have to use indentation,
-in JavaScript -- \{\}.
-
-Here is the code for factorial:
-
-in Python
+Here is the code for factorial calculation:
 \begin{lstlisting}[style=codelst,language=Python]{Python: factorial}
 def factorial(n):
     if n == 1: return 1
@@ -751,18 +503,10 @@ def factorial(n):
 print factorial(5)
 \end{lstlisting}
 
-in JavaScript
-\begin{lstlisting}[style=codelst,language=JavaScript]{Python: factorial}
-function factorial(n) {
-    if( n == 1 ) { return 1; }
-    return n * factorial(n-1);
-}
-document.writeln( factorial(5) );
-\end{lstlisting}
-
 \bigskip
 \begin{tcolorbox}
-\textbf{Assignment:} Add printing function parameter to see the order of function calls
+\textbf{Assignment:} 
+Add printing function parameter to see the order of function calls
 in the recursion.
 \end{tcolorbox}
 
@@ -804,39 +548,13 @@ Note that indices start from 0: index of the first element is 0, index of
 the second element is 1, etc. For the list of N elements the index of the last element
 is N-1.
 
-Loop in JavaScript looks similar:
-\begin{lstlisting}[style=codelst,language=JavaScript]{JavaScript: printing list elements}
-L = ["a", "b", "c", "def"];
-for(e in L) {
-  document.writeln(e);
-}
-\end{lstlisting}
-but loop with element indices is different:
-\begin{lstlisting}[style=codelst,language=JavaScript]{JavaScript: printing list elements by index}
-L = ["a", "b", "c", "def"];
-for(i=0;i<4;i++) {
-  document.writeln(L[i]);
-}
-\end{lstlisting}
-
-The \textbf{for} statement above can be read in the following way:
-\begin{leftborder}
-\begin{enumerate}
-\item starting with \textbf{i=0}
-\item while \textbf{i$<$4}
-\item run the code in \{\dots\}, increase \textbf{i} by 1, and go to 2)
-\end{enumerate}
-\end{leftborder}
-
-The statement \textbf{i++} increments \textbf{i} by one. It's equivalent to
-\textbf{i+=1} and to \textbf{i=i+1}.
-
 \bigskip
 \begin{tcolorbox}
 \textbf{Assignments:}
 \begin{itemize}
 \item Write functions that take a list of numbers as a parameter
 and return: sum of all elements, max element, min element.
+\item Write function that calculates factorials, don't use recursion.
 \item Write function that print first N Fibonacci numbers. N is parameters
 of the function. Fibonacci numbers $F(i)$ are given by the following
 formulas:
@@ -849,7 +567,6 @@ Write two versions of the function: using loops and using recursion.
 \end{tcolorbox}
 
 
-
 \section{Navigating a tree (depth first)}
 Now we can solve the problem of printing node names.
 Here is the Python code --
@@ -857,20 +574,8 @@ it's implementation of items 1-3) above.
 
 \begin{lstlisting}[style=codelst,language=Python]
 def print_node_names(T):
-    for name in T: print name
-    for child in T[name]: print_node_names(child)
-\end{lstlisting}
-
-And in JavaScript:
-\begin{lstlisting}[style=codelst,language=JavaScript]
-function print_node_names(T) {
-    for(name in T) {
-      document.writeln(name);
-    }
-    for(child in T[name]) {
-      print_node_names(child);
-    }
-}
+    print T[0]
+    for child in T[1]: print_node_names(child)
 \end{lstlisting}
 
 Let's look at these 3 lines of code in more details.
@@ -878,13 +583,10 @@ Let's look at these 3 lines of code in more details.
 \begin{leftborder}
 \begin{enumerate}
 \item Here we are defining function of one parameter. The parameter is a tree.
-\item The tree is represented as a dictionary mapping a node name to children.
-If the dictionary is empty the loop will not print anything. Otherwise the
-loop will go over a single element in the dictionary
-(think why there is only
-one name if a tree is constructed according to the scheme suggested before).
-\item T[name] is a dictionary containing node's children. A child is a tree
-and can be empty.  Line 3 goes over all children and calls
+\item The tree is represented by a pair and the first element T[0] of
+the pair is the name. We print it.
+\item The second element T[1] of the pair is the list of node's children. 
+Line 3 goes over all children and calls
 \lstinline{print_node_names} for each of them.
 \end{enumerate}
 \end{leftborder}
