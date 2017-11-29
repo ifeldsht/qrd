@@ -22,44 +22,77 @@ and that maze doesn't contain loops.
 Compare two mazes from the figure above. The top one doesn't have
 loops. 
 
-Our goal is to find a path in the maze from Entrance to Exit:
+Our goal is to find a path in the maze from \textbf{A} to \textbf{B}:
 
-////////
+\begin{labyrinth}{3}{4}
+        \h -++
+\v ++-- \h ---
+\v ++++ \h --+
+\v +--+ \h +++
+\putsymbol(0,4){\small{A}}
+\putsymbol(3,3){\small{B}}
+\end{labyrinth}
+
 
 The first question we need to answer is about the maze description.
 The answer comes from the following observation: every time we
 make a decision navigating the maze we make it from a finite set
 of choices:
-////////
-When we are in location A we can move to location B, when in B we can move to C or D.
+
+\begin{labyrinth}{3}{4}
+        \h -++
+\v ++-- \h ---
+\v ++++ \h --+
+\v +--+ \h +++
+\putsymbol(0,4){\small{A}}
+\putsymbol(3,3){\small{B}}
+\putsymbol(0,3){\small{1}}
+\putsymbol(1,3){\small{2}}
+\putsymbol(2,3){\small{3}}
+\putsymbol(0,2){\small{4}}
+\putsymbol(1,2){\small{5}}
+\putsymbol(2,2){\small{6}}
+\putsymbol(0,1){\small{7}}
+\putsymbol(1,1){\small{8}}
+\putsymbol(2,1){\small{9}}
+\end{labyrinth}
+
+
+When we are in location \textbf{7} we can move to location 
+\textbf{8}, when in \textbf{8} we can move to \textbf{5} or \textbf{9}.
 Let's enumerate all locations and list all possible moves:
-////////
-$$Entrance\rightarrow 1,\ 1\rightarrow 4,\ 
+
+$$A\rightarrow 1,\ 1\rightarrow 4,\ 
 4\rightarrow 7,\ 7\rightarrow 8,\ 8\rightarrow 5\ or\ 9,
-5\rightarrow 2,\ 2\rightarrow 3,\ 3\rightarrow 6\ or\ Exit.$$
+5\rightarrow 2,\ 2\rightarrow 3,\ 3\rightarrow 6\ or\ B.$$
 
 This structure is know from the previous chapter. It's a tree:
 
 \begin{figure}[H]
 \centering
-\Tree[ .Entrance [ .1 [ .4 [ .7 [ .8 [ [ .5 [ .2 [ 3. [ 6 Exit ] ] ] ] 9 ] ] ] ] ] ] 
+\Tree[ .\textbf{A} [ .1 [ .4 [ .7 [ .8 [ [ .5 
+[ .2 [ .3 [ 6 \textbf{B} ] ] ] ] 9 ] ] ] ] ] ] 
 \end{figure}
 
-Assignment: describe this tree in Python and print the path from
-Entrance to Exit.
+\begin{tcolorbox}
+\textbf{Assignments:}
+describe this tree in Python and print the path from A to B.
+\end{tcolorbox}
 
-The maze from the Figure 1?? is small and it's easy to describe it by
+The maze from the figure above is small and it's easy to describe it by
 manually tracing all possible moves.
 For bigger mazes we need an automated way of extracting trees
 from schematic representations.
 For the maze above this can be something like this:
 
+\begin{lstlisting}[language=bash]
 0100000
 0101111
 0101010
 0101000
 0111110
 0000000
+\end{lstlisting}
 
 Zeros represent walls and ones represent paths. You may find that the
 size -- number of elements -- is different. This is the cost of introducing
@@ -73,6 +106,110 @@ to use files in Python.
 
 \section{Python: input/output}
 
-Simple type
+\subsection{Text files - reading/writing}
+
+Text files of different formats -- not formated plain text,
+comma-separated (CSV), JSON, XML -- are widely used for a number
+of applications and we'll start with reading/writing text.
+
+File is referenced by its name. File name may include directory name.
+To start working with a file you need to open it:
+
+\bigskip
+\lstinline{f = open("filename.txt","r")}
+\bigskip
+
+Here function \textbf{open} takes two parameters - file name and mode of operation.
+The mode \textbf{"r"} opens file for reading starting from the very beginning.
+Other modes are
+\textbf{"w"} - open for writing. If file doesn't exist it'll be created. If file
+exists it'll be open as an empty one and existing content will be lost.
+\textbf{"a"} - open for appending. If file exists it'll be open for writing
+to the end of the file.
+
+The function \textbf{open} returns variable \textbf{f} used to actually
+read/write.
+
+After the program is done with reading/writing file must be closed:
+
+\bigskip
+\lstinline{f.close()}
+\bigskip
+
+Here is example:
+
+\begin{lstlisting}[language=Python,style=codelst]{Python: file operations}
+# create a file with one line of text inside:
+f = open("filename.txt","w")
+f.write("Hello world!")
+f.close
+
+# read the file and print its content:
+f = open("filename.txt","r")
+content = f.read()
+f.close
+print content
+
+# append some text to the file
+f = open("filename.txt","a")
+f.write("Hello again")
+f.close
+\end{lstlisting}
+
+\begin{tcolorbox}
+\textbf{Assignments:}
+experiment with opening files in different modes
+and reading/writing. Be careful with modes of operation.
+\end{tcolorbox}
+
+\subsection{Command line arguments. Modules in Python.}
+
+To open a file you need to provide a file name. This can be done
+directly in the code (hardcode the name). In this case you'll need to change
+your program to run for the other file. As an alternative you can
+specify the name as a parameter in the command line:
+
+\begin{lstlisting}[language=bash,frame=single]
+python yourprogram.py filename.txt
+\end{lstlisting}
+
+The code above can be re-written in the following way:
+
+\begin{lstlisting}[language=Python,style=codelst]{Python: command line parameter}
+import sys
+
+# create a file with one line of text inside:
+f = open(sys.argv[1],"w")
+f.write("Hello world!")
+f.close
+
+# read the file and print its content:
+f = open(sys.argv[1],"r")
+content = f.read()
+f.close
+print content
+
+# append some text to the file
+f = open(sys.argv[1],"a")
+f.write("Hello again")
+f.close
+
+\end{lstlisting}
+
+First difference is in the very first line: "import sys".
+Python is has a notion of a module -- the way of organizing
+functions. To start using a module it has to be imported.
+Module
+
+
+
+
+
+
+
+
+
+
+
 
 
