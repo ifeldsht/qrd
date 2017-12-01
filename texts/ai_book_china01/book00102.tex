@@ -2,8 +2,8 @@
 
 Let's apply tree navigation techniques to an old problem
 of finding path in a maze. For the beginning we'll be assuming that
-maze is known (we have full description of a maze before we start),
-and that maze doesn't contain loops.
+maze is known (we have full description of a maze before we start).
+Here is a simple maze:
 
 \begin{labyrinth}{3}{4}
         \h -++
@@ -11,16 +11,13 @@ and that maze doesn't contain loops.
 \v ++++ \h --+
 \v +--+ \h +++
 \end{labyrinth}
-\begin{labyrinth}{3}{4}
-        \h -++
-\v +-+- \h ---
-\v ++++ \h ---
-\v +--+ \h +++
-\labyrinthsolution(0,1){uurddl}
-\end{labyrinth}
-
-Compare two mazes from the figure above. The top one doesn't have
-loops. 
+%\begin{labyrinth}{3}{4}
+%        \h -++
+%\v +-+- \h ---
+%\v ++++ \h ---
+%\v +--+ \h +++
+%\labyrinthsolution(0,1){uurddl}
+%\end{labyrinth}
 
 Our goal is to find a path in the maze from \textbf{A} to \textbf{B}:
 
@@ -32,7 +29,6 @@ Our goal is to find a path in the maze from \textbf{A} to \textbf{B}:
 \putsymbol(0,4){\small{A}}
 \putsymbol(3,3){\small{B}}
 \end{labyrinth}
-
 
 The first question we need to answer is about the maze description.
 The answer comes from the following observation: every time we
@@ -66,7 +62,7 @@ $$A\rightarrow 1,\ 1\rightarrow 4,\
 4\rightarrow 7,\ 7\rightarrow 8,\ 8\rightarrow 5\ or\ 9,
 5\rightarrow 2,\ 2\rightarrow 3,\ 3\rightarrow 6\ or\ B.$$
 
-This structure is know from the previous chapter. It's a tree:
+This structure is known from the previous chapter. It's a tree:
 
 \begin{figure}[H]
 \centering
@@ -100,7 +96,7 @@ walls -- they have a size on the scheme. Extracting a maze from an
 image file (scanned or drawn) is technically possible, but difficult.
 
 You can define the scheme of a maze inside your Python program, but
-more flexible would be to save schemas as text files and have one
+more flexible approach is to save schemas as text files and have one
 program that can work with different mazes. Now we need to learn how
 to use files in Python.
 
@@ -130,7 +126,7 @@ to the end of the file.
 The function \textbf{open} returns variable \textbf{f} used to actually
 read/write.
 
-After the program is done with reading/writing file must be closed:
+After reading/writing is done file must be closed:
 
 \bigskip
 \lstinline{f.close()}
@@ -199,7 +195,258 @@ f.close
 First difference is in the very first line: "import sys".
 Python is has a notion of a module -- the way of organizing
 functions. To start using a module it has to be imported.
-Module
+
+Module \textbf{sys} provides system-level functionality.
+\textbf{sys.argv} is the list of command line arguments starting
+from the name of Python program file.
+
+\begin{lstlisting}[language=Python,style=codelst]{Python: print command line arguments}
+import sys
+
+for arg in sys.argv:
+    print arg
+\end{lstlisting}
+
+\begin{tcolorbox}
+\textbf{Assignments:}
+\begin{itemize}
+\item Run the code above with different parameters.
+\item Write Python program that prints itself.
+\end{itemize}
+\end{tcolorbox}
+
+This code prints all parts of command line. Note that all parameters are strings.
+To pass a numerical value you need to convert corresponding parameter:
+
+\begin{lstlisting}[language=Python,style=codelst]{Python: numbers in command lines}
+import sys
+
+x = sys.argv[1]
+print x, type(x)
+y = int(x)
+print y, type(y)
+\end{lstlisting}
+
+Function \textbf{type} returns type of the argument --
+string, integer, float, list, etc.
+
+
+\subsection{Parsing strings.}
+
+Depending on the file format parsing its content 
+may be more or less difficult.
+For our purposes we'll be parsing maze descriptions 
+saved in text files and convert
+them into trees.
+
+Python program that reads and prints the content of the file:
+
+\begin{lstlisting}[language=Python,style=codelst]{Python: reading file}
+import sys
+
+f = open(sys.argv[1],"r")
+file_content = f.read()
+f.close()
+
+print file_content
+\end{lstlisting}
+
+First we need to split the file content into lines. Lines in files
+end with invisible end-of-line (EOL) symbol or two 
+symbols depending on the
+operating system convention. In most of the cases
+the symbol is \textbf{$\sim n$} or two symbols \textbf{$\sim r\sim n$}.
+Backslash in the beginning indicates a special
+kind of symbols used to format the text. The following code:
+
+\begin{lstlisting}[language=Python,style=codelst]{Python: splitting file into strings}
+lines = file_content.split("\n")
+print lines
+\end{lstlisting}
+
+\begin{tcolorbox}
+\textbf{Assignment:}
+Combine two pieces of code and confirm the type of 
+variable \textbf{lines} (List).
+Print it element by element.
+\end{tcolorbox}
+
+Next step is to convert each line into a 
+list of logical constants (True, False)
+so that True corresponds to a path and False 
+corresponds to a wall. For example
+convert \textbf{0101010} into 
+\lstinline{[False,True,False,True,False,True,False]}. One way of doing
+this is to go character by character in a loop over the entire string,
+compare characters with 1 and 0, and append new logical value to a list:
+
+\begin{lstlisting}[language=Python,style=codelst]{Python: string element by element}
+line = "0101010"
+num = len(line)
+L = []
+for i in range(num):
+    is_path = line[i] == "1"
+    L.append(is_path)
+\end{lstlisting}
+In this piece of code we first use function \textbf{len} to calculate
+number of characters in the line. Next we create an empty list \textbf{L}.
+We go character by character using their indices in the string
+and compare them with "1". Logical variable 
+\textbf{is\_path} is initialized
+depending on the result of comparison with "1" and then appended to 
+the list.
+
+This way of coding is valid, but not very efficient and compact.
+Instead of using loop we can use so called list comprehensions. For
+a list L the following expression
+
+\bigskip
+\lstinline{[f(x) for x in L]}
+\bigskip
+
+creats a list of constructed by applying 
+function \textbf{f} to each element
+of the list. For example:
+
+\begin{lstlisting}[language=Python,style=codelst]{Python: list comprehensions}
+def f1(x):
+    return x*2
+
+def f2(x):
+    return x*x
+
+L = [1,2,3,4]
+L1 = [f1(x) for x in L]
+L2 = [f2(x) for x in L]
+print L, L1, L2
+
+# or the same in place:
+L1 = [x*2 for x in L]
+L2 = [x*x for x in L]
+print L, L1, L2
+\end{lstlisting}
+
+As we know string in Python can be treated as a list 
+(with some limitations).
+The following code converts string \textbf{line} into a
+list of characters it contains:
+
+\begin{lstlisting}[language=Python,style=codelst]{Python: line to list}
+line = "abc"
+L = [x for x in line]
+print line, L
+\end{lstlisting}
+
+Now we can rewrite the code converting string element by element into
+logical variables in the following way:
+
+\begin{lstlisting}[language=Python,style=codelst]{Python: string element by element}
+line = "0101010"
+L = [x=="1" for x in line]
+\end{lstlisting}
+Here we use in place expression \textbf{x=="1"} 
+for each element of the \textbf{line}.
+
+Let's combine reading the file, splitting it into lines and processing lines
+element by element together:
+
+\begin{lstlisting}[language=Python,style=codelst]{Python: reading a maze description}
+import sys
+
+f = open(sys.argv[1],"r")
+maze = [[x=="1" for x in line] for line in f.read().split("\n") if len(line)>0]
+f.close()
+
+print maze
+\end{lstlisting}
+Here we've combined several tasks:
+\begin{itemize}
+\item \textbf{f.read()} is combined with \textbf{split("\textbackslash n")} -- the output of
+file reading is split directly without creating intermediate
+variable. The chain of function calls returns a list of lines in the file.
+\item We are using one list comprehension inside the other: conversion of
+line characters into logical variables inside splitting file into line.
+\item Also we've added one new element -- checking the length of a 
+line: \lstinline{if len(line)>0}. This allows au to skip an empty line.
+\end{itemize}
+
+\section{Converting a maze to a tree. Graphs.}
+
+Now we have a geometrical description
+of a maze -- for each element we can tell if it's a path or a wall.
+Let's now convert it into a tree representing a node and its children,
+or in the case of maze -- an element of a path and
+elements of a path on the right-left-top-bottom (if they exist).
+
+To make work with a maze descriptions more convenient we need to
+change the way we are identifying elements of a maze. Before we
+used simple enumeration -- for small 3x3 maze above we enumerated all
+9 elements from 1 to 9. For a bigger maze enumeration doesn't give a
+clear picture -- where is, for example, element 134 in the 18x13 maze?
+ Instead of enumeration we'll be using two numbers -- index of a line
+and index of an element position in a line. Element 1 in this notation
+becomes (0,0), element 8 -- (2,1). Note zero-based indices -- we'll be
+following Python list indexing convention. Enumeration can be easily
+restored if needed: for a position $(i,j)$ the "old" 
+index is $N\cdot i+j+1$,
+where $N$ is the width of a maze: $1=3*0+0+1,\ 8=3*2+1+1$.
+
+The use of enumeration or index pairs makes tree definition 
+a little simpler --
+each index is unique and we don't need to preserve a path to a node to
+distinguish nodes with identical names. A tree can be defined using a
+dictionary mapping unique name of a node to a list of children.
+
+The next step is to go over the maze and create the tree. We'll be
+going over the maze and for each path element analyze 
+surrounding elements --
+for element $(i,j)$ we'll need to check elements
+$(i-1,j),\ (i+1,j),\ (i,j-1), (i,j+1)$. Adding or subtracting 1
+from an index may give new index outside the maze. We'll be
+skipping such cases and first write function that returns True
+if an index is inside the maze, and False if it's outside:
+
+\begin{lstlisting}[language=Python,style=codelst]{Python: checking index position}
+def is_inside(index,maze_width,maze_hight):
+    # checking first index component
+    if index[0] < 0 or index[0] >= maze_hight: return False
+    # checking second index component
+    if index[1] < 0 or index[1] >= maze_width: return False
+    # in all other cases index is inside
+    return True
+\end
+\end{lstlisting}
+
+Now we can code the loop over all elements:
+\begin{lstlisting}[language=Python,style=codelst]{Python: creating tree from maze}
+def create_tree(maze):
+    # height of the maze is the number of lines in the definition
+    height = len(maze)
+    # we are assuming all lines in the definition are of the same length
+    width = len(maze[0])
+    # we are creating empty dictionary ...
+    tree = {}
+    # ... and first populate it with path elements mapped to empty lists
+    for i in range(height):
+        for j in range(width):
+            if maze[i][j]: tree[(i,j)] = []
+    # now for all elements of the tree we populated
+    # lists with indices of surrounding path elements:
+    for e in tree:
+        i,j = e[0], e[1]
+        if is_inside((i-1,j),width,height): 
+            if maze[i-1][j]: tree[e].append((i-1,j))
+        if is_inside((i+1,j),width,height): 
+            if maze[i+1][j]: tree[e].append((i+1,j))
+        if is_inside((i,j-1),width,height): 
+            if maze[i][j-1]: tree[e].append((i,j-1))
+        if is_inside((i,j+1),width,height): 
+            if maze[i][j+1]: tree[e].append((i,j+1))
+    return tree
+
+\end{lstlisting}
+
+
 
 
 
