@@ -446,14 +446,87 @@ def create_tree(maze):
 
 \end{lstlisting}
 
+\begin{tcolorbox}
+\textbf{Assignment:}
+Combine reading a maze from a file, maze parsing,
+index verification, and tree creation into one program.
+Run the program and review results.
+\end{tcolorbox}
+
+As we can see the tree constructed above is different from
+trees we've seen before. No the node contains its parent
+in the list of children -- we do not distinguish
+parents and children and operate only with neighbors.
+This creates the following problem: the tree navigation
+algorithm we used before includes the loop over all
+children. If parent node in in the list of children
+the loop becomes infinite, or, taking into account
+that we used recursion, recursion becomes infinite.
+
+Similar problem arises when we a maze has loops.
+As a result we may start going in circles:
+
+\begin{labyrinth}{3}{4}
+        \h -++
+\v +-+- \h ---
+\v ++++ \h ---
+\v +--+ \h +++
+\labyrinthsolution(0,1){uurddl}
+\end{labyrinth}
+
+The node structure doesn't form a tree. 
+The structure where nodes can form loops is
+called a \textbf{graph}. Tree is a graph without loops.
+
+To navigate a graph and find a path between two nodes we
+have to modify the algorithm by keeping a record of visited
+nodes. Updated version of Depth First Search is:
+
+\begin{lstlisting}[language=Python,style=codelst]{Python: DFS with saving visited nodes}
+def DFS(graph,node,visited):
+    # adding new node to the list of visited
+    visited.append(node)
+    # for each node ...
+    for child in graph[node]:
+    # ... if it's not visitied
+        if child not in visited:
+            DFS(graph,child,visited)
+\end{lstlisting}
+
+Function now takes two more parameters: current node and the list
+of visited nodes. When calling the function we are using
+an entrance node and empty list.
+
+\begin{tcolorbox}
+\textbf{Assignment:}
+Combine tree created from a maze definition with DFS function and
+print all visited nodes. Use (0,1) as the entrance node.
+\end{tcolorbox}
+
+We may see that \textbf{DFS} function actually doesn't do any search --
+it goes over all nodes. That's not what we need -- the search must
+stop when we come to the exit. We have to add new parameter -- \textbf{goal}
+that identifies the exit node, and to check each node:
+
+\begin{lstlisting}[language=Python,style=codelst]{Python: DFS with saving visited nodes}
+def DFS(graph,node,visited,goal):
+    visited.append(node)
+    # stop if we've reached the goal
+    if node == goal: return True
+    for child in graph[node]:
+        if child not in visited:
+            # mini-assignment: why do we need this check?
+            if DFS(graph,child,visited): return True
+    # we'll come here if the maze doesn't have a solution
+    return False
+\end{lstlisting}
 
 
-
-
-
-
-
-
+\begin{tcolorbox}
+\textbf{Assignment:}
+Modify the code of the previous assignment and find the path from
+entrance to exit.
+\end{tcolorbox}
 
 
 
