@@ -1,5 +1,6 @@
 \chapter{Labyrinths}
 
+\section{A maze as a tree}
 Let's apply tree navigation techniques to an old problem
 of finding path in a maze. For the beginning we'll be assuming that
 maze is known (we have full description of a maze before we start).
@@ -75,6 +76,8 @@ This structure is known from the previous chapter. It's a tree:
 describe this tree in Python and print the path from A to B.
 \end{tcolorbox}
 
+\section{Maze descriptions}
+
 The maze from the figure above is small and it's easy to describe it by
 manually tracing all possible moves.
 For bigger mazes we need an automated way of extracting trees
@@ -95,260 +98,14 @@ size -- number of elements -- is different. This is the cost of introducing
 walls -- they have a size on the scheme. Extracting a maze from an
 image file (scanned or drawn) is technically possible, but difficult.
 
+\marginnote{\textbf{\small You need to learn file I/O, string processing, 
+and list comprehensions in Python}}
+
 You can define the scheme of a maze inside your Python program, but
 more flexible approach is to save schemas as text files and have one
-program that can work with different mazes. Now we need to learn how
-to use files in Python.
-
-\section{Python: input/output}
-
-\subsection{Text files - reading/writing}
-
-Text files of different formats -- not formated plain text,
-comma-separated (CSV), JSON, XML -- are widely used for a number
-of applications and we'll start with reading/writing text.
-
-File is referenced by its name. File name may include directory name.
-To start working with a file you need to open it:
-
-\bigskip
-\lstinline{f = open("filename.txt","r")}
-\bigskip
-
-Here function \textbf{open} takes two parameters - file name and mode of operation.
-The mode \textbf{"r"} opens file for reading starting from the very beginning.
-Other modes are
-\textbf{"w"} - open for writing. If file doesn't exist it'll be created. If file
-exists it'll be open as an empty one and existing content will be lost.
-\textbf{"a"} - open for appending. If file exists it'll be open for writing
-to the end of the file.
-
-The function \textbf{open} returns variable \textbf{f} used to actually
-read/write.
-
-After reading/writing is done file must be closed:
-
-\bigskip
-\lstinline{f.close()}
-\bigskip
-
-Here is example:
-
-\begin{lstlisting}[language=Python,style=codelst]{Python: file operations}
-# create a file with one line of text inside:
-f = open("filename.txt","w")
-f.write("Hello world!")
-f.close
-
-# read the file and print its content:
-f = open("filename.txt","r")
-content = f.read()
-f.close
-print content
-
-# append some text to the file
-f = open("filename.txt","a")
-f.write("Hello again")
-f.close
-\end{lstlisting}
-
-\begin{tcolorbox}
-\textbf{Assignments:}
-experiment with opening files in different modes
-and reading/writing. Be careful with modes of operation.
-\end{tcolorbox}
-
-\subsection{Command line arguments. Modules in Python.}
-
-To open a file you need to provide a file name. This can be done
-directly in the code (hardcode the name). In this case you'll need to change
-your program to run for the other file. As an alternative you can
-specify the name as a parameter in the command line:
-
-\begin{lstlisting}[language=bash,frame=single]
-python yourprogram.py filename.txt
-\end{lstlisting}
-
-The code above can be re-written in the following way:
-
-\begin{lstlisting}[language=Python,style=codelst]{Python: command line parameter}
-import sys
-
-# create a file with one line of text inside:
-f = open(sys.argv[1],"w")
-f.write("Hello world!")
-f.close
-
-# read the file and print its content:
-f = open(sys.argv[1],"r")
-content = f.read()
-f.close
-print content
-
-# append some text to the file
-f = open(sys.argv[1],"a")
-f.write("Hello again")
-f.close
-
-\end{lstlisting}
-
-First difference is in the very first line: "import sys".
-Python is has a notion of a module -- the way of organizing
-functions. To start using a module it has to be imported.
-
-Module \textbf{sys} provides system-level functionality.
-\textbf{sys.argv} is the list of command line arguments starting
-from the name of Python program file.
-
-\begin{lstlisting}[language=Python,style=codelst]{Python: print command line arguments}
-import sys
-
-for arg in sys.argv:
-    print arg
-\end{lstlisting}
-
-\begin{tcolorbox}
-\textbf{Assignments:}
-\begin{itemize}
-\item Run the code above with different parameters.
-\item Write Python program that prints itself.
-\end{itemize}
-\end{tcolorbox}
-
-This code prints all parts of command line. Note that all parameters are strings.
-To pass a numerical value you need to convert corresponding parameter:
-
-\begin{lstlisting}[language=Python,style=codelst]{Python: numbers in command lines}
-import sys
-
-x = sys.argv[1]
-print x, type(x)
-y = int(x)
-print y, type(y)
-\end{lstlisting}
-
-Function \textbf{type} returns type of the argument --
-string, integer, float, list, etc.
-
-
-\subsection{Parsing strings.}
-
-Depending on the file format parsing its content 
-may be more or less difficult.
-For our purposes we'll be parsing maze descriptions 
-saved in text files and convert
-them into trees.
-
-Python program that reads and prints the content of the file:
-
-\begin{lstlisting}[language=Python,style=codelst]{Python: reading file}
-import sys
-
-f = open(sys.argv[1],"r")
-file_content = f.read()
-f.close()
-
-print file_content
-\end{lstlisting}
-
-First we need to split the file content into lines. Lines in files
-end with invisible end-of-line (EOL) symbol or two 
-symbols depending on the
-operating system convention. In most of the cases
-the symbol is \textbf{$\sim n$} or two symbols \textbf{$\sim r\sim n$}.
-Backslash in the beginning indicates a special
-kind of symbols used to format the text. The following code:
-
-\begin{lstlisting}[language=Python,style=codelst]{Python: splitting file into strings}
-lines = file_content.split("\n")
-print lines
-\end{lstlisting}
-
-\begin{tcolorbox}
-\textbf{Assignment:}
-Combine two pieces of code and confirm the type of 
-variable \textbf{lines} (List).
-Print it element by element.
-\end{tcolorbox}
-
-Next step is to convert each line into a 
-list of logical constants (True, False)
-so that True corresponds to a path and False 
-corresponds to a wall. For example
-convert \textbf{0101010} into 
-\lstinline{[False,True,False,True,False,True,False]}. One way of doing
-this is to go character by character in a loop over the entire string,
-compare characters with 1 and 0, and append new logical value to a list:
-
-\begin{lstlisting}[language=Python,style=codelst]{Python: string element by element}
-line = "0101010"
-num = len(line)
-L = []
-for i in range(num):
-    is_path = line[i] == "1"
-    L.append(is_path)
-\end{lstlisting}
-In this piece of code we first use function \textbf{len} to calculate
-number of characters in the line. Next we create an empty list \textbf{L}.
-We go character by character using their indices in the string
-and compare them with "1". Logical variable 
-\textbf{is\_path} is initialized
-depending on the result of comparison with "1" and then appended to 
-the list.
-
-This way of coding is valid, but not very efficient and compact.
-Instead of using loop we can use so called list comprehensions. For
-a list L the following expression
-
-\bigskip
-\lstinline{[f(x) for x in L]}
-\bigskip
-
-creats a list of constructed by applying 
-function \textbf{f} to each element
-of the list. For example:
-
-\begin{lstlisting}[language=Python,style=codelst]{Python: list comprehensions}
-def f1(x):
-    return x*2
-
-def f2(x):
-    return x*x
-
-L = [1,2,3,4]
-L1 = [f1(x) for x in L]
-L2 = [f2(x) for x in L]
-print L, L1, L2
-
-# or the same in place:
-L1 = [x*2 for x in L]
-L2 = [x*x for x in L]
-print L, L1, L2
-\end{lstlisting}
-
-As we know string in Python can be treated as a list 
-(with some limitations).
-The following code converts string \textbf{line} into a
-list of characters it contains:
-
-\begin{lstlisting}[language=Python,style=codelst]{Python: line to list}
-line = "abc"
-L = [x for x in line]
-print line, L
-\end{lstlisting}
-
-Now we can rewrite the code converting string element by element into
-logical variables in the following way:
-
-\begin{lstlisting}[language=Python,style=codelst]{Python: string element by element}
-line = "0101010"
-L = [x=="1" for x in line]
-\end{lstlisting}
-Here we use in place expression \textbf{x=="1"} 
-for each element of the \textbf{line}.
-
-Let's combine reading the file, splitting it into lines and processing lines
-element by element together:
+program that can work with different mazes. 
+The following piece of code combines reading the file, splitting it into lines and processing lines
+element by element:
 
 \begin{lstlisting}[language=Python,style=codelst]{Python: reading a maze description}
 import sys
@@ -359,16 +116,6 @@ f.close()
 
 print maze
 \end{lstlisting}
-Here we've combined several tasks:
-\begin{itemize}
-\item \textbf{f.read()} is combined with \textbf{split("\textbackslash n")} -- the output of
-file reading is split directly without creating intermediate
-variable. The chain of function calls returns a list of lines in the file.
-\item We are using one list comprehension inside the other: conversion of
-line characters into logical variables inside splitting file into line.
-\item Also we've added one new element -- checking the length of a 
-line: \lstinline{if len(line)>0}. This allows au to skip an empty line.
-\end{itemize}
 
 \section{Converting a maze to a tree. Graphs.}
 
@@ -378,11 +125,11 @@ Let's now convert it into a tree representing a node and its children,
 or in the case of maze -- an element of a path and
 elements of a path on the right-left-top-bottom (if they exist).
 
-To make work with a maze descriptions more convenient we need to
+To make the work with a maze descriptions more convenient we need to
 change the way we are identifying elements of a maze. Before we
 used simple enumeration -- for small 3x3 maze above we enumerated all
 9 elements from 1 to 9. For a bigger maze enumeration doesn't give a
-clear picture -- where is, for example, element 134 in the 18x13 maze?
+clear picture -- where, for example, is the element 134 in the 18x13 maze?
  Instead of enumeration we'll be using two numbers -- index of a line
 and index of an element position in a line. Element 1 in this notation
 becomes (0,0), element 8 -- (2,1). Note zero-based indices -- we'll be
@@ -503,8 +250,10 @@ Combine tree created from a maze definition with DFS function and
 print all visited nodes. Use (0,1) as the entrance node.
 \end{tcolorbox}
 
+\section{Finding the exit}
+
 We may see that \textbf{DFS} function actually doesn't do any search --
-it goes over all nodes. That's not what we need -- the search must
+it goes over \textbf{all} nodes. That's not what we need -- the search must
 stop when we come to the exit. We have to add new parameter -- \textbf{goal}
 that identifies the exit node, and to check each node:
 

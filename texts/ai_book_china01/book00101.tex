@@ -1,5 +1,5 @@
 \chapter{Simple decisions}
-
+\section{Finding your path}
 We are starting with reviewing how you make everyday life decisions.
 Let's say you want to find your class room and now you are on the street.
 You can choose between two buildings: Cinema and School.
@@ -85,110 +85,6 @@ combinations of decisions.
 Our first task will be finding path to your classroom
 given the tree from Figure 1.2.
 
-Before we can approach the task let's get familiar with
-programming language we'll be using in the project: Python.
-
-\section{Programming -- basic concepts}
-
-Let's start with reviewing elements that don't dependent
-on the programming language and then see how they work in
-Python and JS. Programs implement algorithms and
-as a rule take some data as an input and generate data as an output.
-Data types are domain-specific - different applications require
-different data elements and
-data organization, but the most common types are:
-
-\begin{leftborder}
-\begin{enumerate}
-\item Logical constants: True and False.
-\item Single numbers: last price on the market, number of
-cars on the parking, age, number of seconds between two events,
-universal constants, etc. 5, 3.1415926, 123.97
-\item Text: single characters, words, sentences, documents, text of news
-\item Lists of elements: historical prices, weather records,
-network traffic. Elements of lists can be accessed by their
-position in the list - first element, second element, etc.
-Lists are very common and fundamental in programming and in CS.
-The name of on of eldest programming languages -- LISP --
-stands for LISt Processor.
-\end{enumerate}
-\end{leftborder}
-
-\subsection{A few words on programming environments}
-\subsubsection{Python}
-If Python is not installed please go to python.org an follow
-instructions for your operating system.
-We assume a student can create a text file with the code of the program
-and execute command:
-
-\begin{lstlisting}[language=bash,style=codelst]{Python: runnning program saved in filename.py}
-python filename.py
-\end{lstlisting}
-
-Traditionally the first program is printing "Hello world!".
-\footnote{Files with source codes of all examples are attached.}
-Here is its listing in Python:
-
-\begin{lstlisting}[style=codelst, language=Python]{Python: Hello World!}
-print "Hello world!"
-\end{lstlisting}
-
-\bigskip
-\begin{tcolorbox}
-\textbf{Assignment:} create file HelloWorld.py with this program
-and run in the command line:
-\begin{lstlisting}[language=bash,frame=single]{Python: run HelloWorld.py}
-python HelloWorld.py
-\end{lstlisting}
-\end{tcolorbox}
-
-\subsection{Basic types and operations}
-
-The following listing shows very basic operations
-in Python. You can start Python interactive shell by executing
-in command prompt:
-\begin{lstlisting}[language=bash,style=codelst]
-python
-\end{lstlisting}
-in the command line and entering commands one by one:
-
-\begin{lstlisting}[style=codelst,language=Python]
-# Bolean
-b = True
-
-# Integer number
-x = 2
-
-# Float number
-y = 1.23
-
-# String
-s = "Abc"
-
-# List of numbers:
-L = [1,2,3,4,5]
-
-# print everything:
-print b, x, y, s, L
-
-# Operations:
-b2 = not b
-print b, b2
-
-x2 = x * 31
-print x, x2
-
-y2 = y*y
-print y, y2
-
-s2 = s.lower()
-print s, s2
-
-L2 = L[::-1]
-print L, L2
-\end{lstlisting}
-Lines started with \# are comments, they are not executed.
-
 \section{How to navigate a tree}
 
 How do we navigate a tree? In other words - how do we go over
@@ -256,8 +152,7 @@ with nodes 8 and 9.
 
 \section{How to describe a tree}
 
-Now when we have an idea about basic data types, and tree navigation
-let's see how we can
+Let's see how we can
 describe the tree from Figure 2. Each node has a name, for example "School"
 and a list of children - ["Left stair", "Right stair"]. The list of children can be empty, in this case the node is called a Leaf or a terminal node. The node without
 a parent is called root node - in our case it's "Street".
@@ -279,13 +174,14 @@ It doesn't look convenient and transparent, adding one more layer
 will make the description not readable. 
 What would help is describing the tree incrementally - node by node:
 
+\marginnote{\textbf{\small You need to learn basic operations and collections in Python -- lists, dictionaries}}
 Tree1 = (Left stair,[])
 
 Tree2 = (Right stair,[]) 
 
 Tree3 = (School,[Tree1,Tree2])
 
-Let's see what wee did. We created Tree1 as a pair of the node
+Here is what wee did: we created Tree1 as a pair of the node
 name and the list of children (this list is empty, as for this example
 stairs are terminal nodes -- they don't have children). 
 The same is for Tree2. The list for Tree3 is not empty, it's constructed
@@ -301,7 +197,7 @@ Tree5 = (Cinema,[Tree4])
 Tree6 = (Street,[Tree3,Tree5])
 
 
-Here is the full initialization for the tree from Figure 1.3 in Python and JS:
+Here is the full initialization for the tree from Figure 1.3 in Python:
 
 \begin{lstlisting}[style=codelst,language=Python]{Python: tree description}
 
@@ -345,92 +241,7 @@ steps of searching node 6 in
 the Figure 1.3 
 \end{tcolorbox}
 
-Now we need to learn about functions in Python
-
-\section{Programming: functions, conditions, loops}
-\subsection{Functions in Python}
-
-We are using "def" to declare new function, list parameters in
-parenthesis, and column ":" in the end of declaration
-For example:
-
-\begin{lstlisting}[style=codelst,language=Python]
-def f(x): return x*x
-\end{lstlisting}
-
-Here we've declared function \textbf{f}, taking one parameter \textbf{x},
-and returning the square of the parameter. The function
-can fail if multiplication is not defined for the parameter \textbf{x} --
-if it's a string for example. We'll review type-related
-issues later in the course.
-
-The function can have more than one line of code. We can re-write
-the function from our example in the following way
-
-\begin{lstlisting}[style=codelst,language=Python]{Python: simple function}
-def f(x):
-    x_squared = x*x
-    return x_squared
-\end{lstlisting}
-Note indentation - usually it's 4 spaces. The indentation defines
-the body of the function and affects "visibility" of variables. Consider the
-following code:
-
-\begin{lstlisting}[style=codelst,language=Python]{Python: visibility of variables}
-x = 1
-
-def f(x):
-    x2 = 2*x
-    return x2
-
-def g():
-    x2 = 2*x
-    return x2
-
-print f(2)
-print g()
-\end{lstlisting}
-First we've initialized variable \textbf{x} (line 1). Then we've
-defined two functions:
-
-\begin{enumerate}
-\item \textbf{f} that takes a parameters with the same
-name \textbf{x} and returns \textbf{2*x}. The variable x initialized on
-the line 1 doesn't affect this function and
-on the line 4 the variable \textbf{x} known to
-the function f is equal 2.
-\item \textbf{g} that doesn't take a parameter and returns \textbf{2*x} for
-any \textbf{x} defined before the function call. In this case \textbf{g}
-takes \textbf{x=1} defined on the line 1.
-\end{enumerate}
-
-Functions in Python can be nested - one function can be defined in
-the body of other function:
-
-\begin{lstlisting}[style=codelst,language=Python]{Python: nested functions}
-x = 1
-
-def f(x):
-    x = 2*x
-    def g(x):
-        x = x+1
-        return x
-    return x + g(7)
-
-print f(2)
-\end{lstlisting}
-Note double indentation -- 8 spaces -- for the body of function \textbf{g}
-There are three independent variables \textbf{x} here.
-
-\bigskip
-\begin{tcolorbox}
-\textbf{Assignment:}
-What are values of x when you are on the lines 1, 4, 6?
-Add printing value of x in different parts of the code
-to check your answer.
-\end{tcolorbox}
-
-\subsection{Recursion}
+\section{Recursion}
 
 To solve our problem and print tree node names we need
 to make one important observation: \textbf{a function can call itself}.
@@ -467,32 +278,7 @@ Let's first imagine and then program the following function "factorial":
 \end{enumerate}
 \end{leftborder}
 
-To program this function we need to learn how to check conditions --
-the function must be able to distinguish cases $n = 1$ and $n\neq 1$.
-
-If you program need to change behaviour depending on some condition
-you can use \textbf{if} statement.
-Let's say you want to print numbers using words. On simple way of doing
-this is to check the number and print accordingly.
-
-in Python:
-\begin{lstlisting}[style=codelst,language=Python]{Python: conditional statements}
-n = 1
-if n = = 1:
-    print "one"
-elif n = = 2:
-    print "two"
-else:
-    print "not one or two"
-\end{lstlisting}
-Here we are using double equality sign to check the value.
-\begin{itemize}
-\item First we compare \textbf{n} with 1.
-If n is equal to 1 we print the word "one".
-\item If it's not we compare \textbf{n} with 2 (note the use of \textbf{elif} statement)
-and print accordingly.
-\item For all other cases (\textbf{n} is not 1 or 2) we use keyword \textbf{else}.
-\end{itemize}
+\marginnote{\textbf{\small You need to learn about functions, loops, and conditional statements in Python}}
 
 Here is the code for factorial calculation:
 \begin{lstlisting}[style=codelst,language=Python]{Python: factorial}
@@ -505,58 +291,13 @@ print factorial(5)
 
 \bigskip
 \begin{tcolorbox}
-\textbf{Assignment:} 
-Add printing function parameter to see the order of function calls
-in the recursion.
-\end{tcolorbox}
-
-The other technical topic we need to cover before we can program
-tree navigation is the use of loops. The loop is needed to implement
-step 3 from the above.
-
-There exist cases when your program has to iterate over elements
-of a list or a dictionary, or execute some part of a code several times
-probably with different parameters. In such case we can use \textbf{for}
-statement:
-
-in Python
-\begin{lstlisting}[style=codelst,language=Python]
-L = ["a", "b", "c", "def"]
-for e in L:
-    print e
-\end{lstlisting}
-
-Very common is the case when your program iterates over the
-list elements using their indices. Index is position of an element
-in the list:
-
-in Python
-\begin{lstlisting}[style=codelst,language=Python]{Python: printing list elements}
-L = ["a", "b", "c", "def"]
-for i in range(4):
-    print L[i]
-\end{lstlisting}
-
-\textbf{range(4)} is function returning list of integers from 0 to n-1.
-The code above is equivalent to
-\begin{lstlisting}[style=codelst,language=Python]{Python: printing list elements by index}
-L = ["a", "b", "c", "def"]
-for i in [0,1,2,3]:
-    print L[i]
-\end{lstlisting}
-Note that indices start from 0: index of the first element is 0, index of
-the second element is 1, etc. For the list of N elements the index of the last element
-is N-1.
-
-\bigskip
-\begin{tcolorbox}
 \textbf{Assignments:}
 \begin{itemize}
-\item Write functions that take a list of numbers as a parameter
-and return: sum of all elements, max element, min element.
+\item Add printing function parameter to see the order of function calls
+in the recursion.
 \item Write function that calculates factorials, don't use recursion.
-\item Write function that print first N Fibonacci numbers. N is parameters
-of the function. Fibonacci numbers $F(i)$ are given by the following
+\item Write function that print first N Fibonacci numbers. 
+Fibonacci numbers $F(i)$ are given by the following
 formulas:
 
 $$F(1) = 1$$ $$F(2) = 1$$ $$F(i) = F(i-1) + F(i-2) $$
