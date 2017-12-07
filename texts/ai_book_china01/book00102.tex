@@ -278,7 +278,90 @@ entrance to exit.
 \end{tcolorbox}
 
 
+\section{Breadth first search (BFS)}
 
+When we started talking about navigating a tree we've mentioned
+two algorithms. One -- depth first search -- we've learned in
+previous sections. Let's consider the second one -- breadth first
+search where we go layer by layer in a tree. For general graph
+BFS first examines all neighbors (children) of a node before
+increasing the depth. Similar to DFS BFS is keeping track of
+visited nodes to avoid going into a loop.
+
+The algorithm includes the following steps:
+
+\begin{itemize}
+\item We create an empty list \textbf{P} that will keep our path, and
+an empty list \textbf{V} to keep visited nodes.
+\item We create a list \textbf{Q} that will keep a queue of
+nodes we need to check. In the beginning the list contains
+only starting node.
+\item The main loop continues while we have nodes to visit, or
+in other words -- while the queue \textbf{Q} is not empty.
+\item On each step we take first element of \textbf{Q} as our
+current node and remove it from the queue.
+\item We stop if the current node is our goal.
+\item We skip the current node if it's in \textbf{V}.
+\item In all other cases we append current node to \textbf{V} and
+\textbf{P} and all neighbors of the current node to \textbf{Q}.
+\item We continue the main loop.
+\end{itemize}
+
+Here is Python code:
+
+\begin{lstlisting}[language=Python,style=codelst]{Python: Breadth first search}
+def BFS(graph,P,start,goal):
+    # initializing queue
+    Q = [start]
+    # initalaizing path and list of visited nodes
+    P = []
+    # main loop while Q is not empty
+    while len(Q)>0:
+        current_node = Q[0]
+        # remove current node from the queue
+        Q = Q[1:]
+        # are we done?
+        if current_node == goal: return True
+        # have we already been here?
+        if current_node in V: continue
+        # saving current node
+        V.append(current_node)
+        !!!!!!!!!!!!!!!
+\end{lstlisting}
+
+You can rewrite the code using more efficient Python structure \textbf{dqueue}.
+
+\begin{tcolorbox}
+\textbf{Assignments:}
+\begin{itemize}
+\item compare DFS and BFS for the following maze:
+\begin{labyrinth}{3}{4}
+        \h -++
+\v +-+- \h ---
+\v ++++ \h ---
+\v +--+ \h +++
+\end{labyrinth}
+\item compare DFS and BFS for bigger maze:
+
+\begin{lstlisting}[language=bash]
+010000000000
+011111111110
+010000001000
+010111111110
+010100000010
+010101111110
+011100100010
+010111101000
+010010111110
+010110000010
+011100111111
+000000000000
+\end{lstlisting}
+
+Create file with description of the maze, parse it into graph,
+do search.
+\end{itemize}
+\end{tcolorbox}
 
 
 
