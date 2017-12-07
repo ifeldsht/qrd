@@ -1,0 +1,70 @@
+<html>
+<head>
+<script src="kidsmathgen.js"></script>
+<style>
+body {
+    font-family: courier;
+}
+
+table {
+    font-family: courier;
+    font-size: 150%;
+    border-collapse: collapse;
+    width: 600;
+}
+td, th {
+    text-align: left;
+    padding: 10px;
+}
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
+</style>
+</head>
+<body>
+
+<h1>Simple math problems for kids.</h1>
+<h3>Click &gt;&gt; to generate with default parameters:</h3>
+
+<table>
+<tr><td>Sample problems:</td><td></td></tr>
+<tr>
+  <td><script>document.writeln(gen_addsub(10,200));</script></td>
+  <td><a href="kmg.htm?name=addsub&rows=10&cols=2&max=500&min=10">&gt;&gt;</a></td>
+</tr>
+<tr>
+  <td><script>document.writeln(gen_eq1(10,100));</script></td>
+  <td><a href="kmg.htm?name=eq1&rows=10&cols=2&max=100&min=10">&gt;&gt;</a></td>
+</tr>
+<tr>
+  <td><script>document.writeln(gen_eq2(10,100));</script></td>
+  <td><a href="kmg.htm?name=eq2&rows=10&cols=2&max=100&min=10">&gt;&gt;</a></td>
+</tr>
+<tr>
+  <td><script>document.writeln(gen_mul2big(1,7));</script></td>
+  <td><a href="kmg.htm?name=mul2big&rows=10&cols=2&max=10&min=1">&gt;&gt;</a></td>
+</tr>
+<tr>
+  <td><script>document.writeln(gen_muladd(10,100,100));</script></td>
+  <td><a href="kmg.htm?name=muladd&rows=10&cols=2&max=100&min=10&maxadd=100">&gt;&gt;</a></td>
+</tr>
+<tr>
+  <td><script>document.writeln(gen_muladdmul(10,30,100));</script></td>
+  <td><a href="kmg.htm?name=muladdmul&rows=10&cols=2&max=30&min=10&maxadd=100">&gt;&gt;</a></td>
+</tr>
+<tr>
+  <td><script>document.writeln(gen_muldiv(10,100));</script></td>
+  <td><a href="kmg.htm?name=muldiv&rows=10&cols=2&max=100&min=10">&gt;&gt;</a></td>
+</tr>
+<tr>
+  <td><script>document.writeln(gen_mulcommon(10,100));</script></td>
+  <td><a href="kmg.htm?name=mulcommon&rows=10&cols=2&max=100&min=10">&gt;&gt;</a></td>
+</tr>
+
+</table>
+
+Reload to update sample problems.
+  
+</body>
+
+</html>
