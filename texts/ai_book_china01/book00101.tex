@@ -105,8 +105,8 @@ Each path is associated with tree search algorithm
 -- "depth first search (DFS)" and "breadth first search (BFS)".
 
 We'll start with DFS and first make an obvious observation:
-\textbf{the part of the tree is a tree itself}.
-The part of the tree above is a tree:
+\textbf{a part of a tree is a tree}.
+The part of the tree above is the tree:
 \begin{figure}[H]
 \centering
 \Tree [ .2 [ .4 7 ] [ .5 8 9 ] ]
@@ -152,9 +152,17 @@ with nodes 8 and 9.
 
 \section{How to describe a tree}
 
+\begin{tcolorbox}
+\textbf{Python:} 
+You need to learn basic operations and collections in 
+Python -- lists, dictionaries
+\end{tcolorbox}
+
 Let's see how we can
 describe the tree from Figure 2. Each node has a name, for example "School"
-and a list of children - ["Left stair", "Right stair"]. The list of children can be empty, in this case the node is called a Leaf or a terminal node. The node without
+and a list of children - ["Left stair", "Right stair"]. The list 
+of children can be empty, in this case the node is called a leaf 
+or a terminal node. The node without
 a parent is called root node - in our case it's "Street".
 
 Here is how we define
@@ -174,7 +182,6 @@ It doesn't look convenient and transparent, adding one more layer
 will make the description not readable. 
 What would help is describing the tree incrementally - node by node:
 
-\marginnote{\textbf{\small You need to learn basic operations and collections in Python -- lists, dictionaries}}
 Tree1 = (Left stair,[])
 
 Tree2 = (Right stair,[]) 
@@ -199,8 +206,7 @@ Tree6 = (Street,[Tree3,Tree5])
 
 Here is the full initialization for the tree from Figure 1.3 in Python:
 
-\begin{lstlisting}[style=codelst,language=Python]{Python: tree description}
-
+\begin{lstlisting}[style=codelst,language=Python,caption={Python: tree description}]
 Tree1 = ("Math classroom",[])
 Tree2 = ("Library",[])
 Tree3 = ("Chemical lab",[])
@@ -229,19 +235,24 @@ Let's say we start from the root node. Our steps are:
 \begin{enumerate}
 \item print the name of the root node.
 \item if the node doesn't have children we are done.
-\item we know child nodes and we remember that each child is a root for own tree.
+\item we know children nodes and we remember that each child is a root for own tree.
 So we need to do 1-3) for all children.
 \end{enumerate}
 \end{leftborder}
 
 \bigskip
 \begin{tcolorbox}
-\textbf{Assignment:} use steps 1-3) to reproduce 
+\textbf{Assignment:} use steps 1-3) to manually reproduce 
 steps of searching node 6 in
 the Figure 1.3 
 \end{tcolorbox}
 
 \section{Recursion}
+
+\begin{tcolorbox}
+\textbf{Python:} 
+You need to learn about functions, loops, and conditional statements.
+\end{tcolorbox}
 
 To solve our problem and print tree node names we need
 to make one important observation: \textbf{a function can call itself}.
@@ -278,10 +289,8 @@ Let's first imagine and then program the following function "factorial":
 \end{enumerate}
 \end{leftborder}
 
-\marginnote{\textbf{\small You need to learn about functions, loops, and conditional statements in Python}}
-
 Here is the code for factorial calculation:
-\begin{lstlisting}[style=codelst,language=Python]{Python: factorial}
+\begin{lstlisting}[style=codelst,language=Python,caption={Python: factorial}]
 def factorial(n):
     if n == 1: return 1
     return n * factorial(n-1)
@@ -311,9 +320,9 @@ Write two versions of the function: using loops and using recursion.
 \section{Navigating a tree (depth first)}
 Now we can solve the problem of printing node names.
 Here is the Python code --
-it's implementation of items 1-3) above.
+it's the implementation of items 1-3) above.
 
-\begin{lstlisting}[style=codelst,language=Python]
+\begin{lstlisting}[style=codelst,language=Python,caption={Python: printing node names (depth first)}]
 def print_node_names(T):
     print T[0]
     for child in T[1]: print_node_names(child)

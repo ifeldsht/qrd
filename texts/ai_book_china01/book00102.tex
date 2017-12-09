@@ -78,6 +78,12 @@ describe this tree in Python and print the path from A to B.
 
 \section{Maze descriptions}
 
+\begin{tcolorbox}
+\textbf{Python:}
+You need to learn file I/O, string processing, 
+and list comprehensions in Python
+\end{tcolorbox}
+
 The maze from the figure above is small and it's easy to describe it by
 manually tracing all possible moves.
 For bigger mazes we need an automated way of extracting trees
@@ -98,20 +104,19 @@ size -- number of elements -- is different. This is the cost of introducing
 walls -- they have a size on the scheme. Extracting a maze from an
 image file (scanned or drawn) is technically possible, but difficult.
 
-\marginnote{\textbf{\small You need to learn file I/O, string processing, 
-and list comprehensions in Python}}
-
 You can define the scheme of a maze inside your Python program, but
 more flexible approach is to save schemas as text files and have one
 program that can work with different mazes. 
 The following piece of code combines reading the file, splitting it into lines and processing lines
 element by element:
 
-\begin{lstlisting}[language=Python,style=codelst]{Python: reading a maze description}
+\begin{lstlisting}[language=Python,style=codelst,caption={Python: reading a maze description}]
 import sys
 
 f = open(sys.argv[1],"r")
-maze = [[x=="1" for x in line] for line in f.read().split("\n") if len(line)>0]
+maze = [[x=="1" for x in line] \
+       for line in f.read().split("\n") \
+       if len(line)>0]
 f.close()
 
 print maze
@@ -153,7 +158,7 @@ from an index may give new index outside the maze. We'll be
 skipping such cases and first write function that returns True
 if an index is inside the maze, and False if it's outside:
 
-\begin{lstlisting}[language=Python,style=codelst]{Python: checking index position}
+\begin{lstlisting}[language=Python,style=codelst,caption={Python: checking index position}]
 def is_inside(index,maze_width,maze_hight):
     # checking first index component
     if index[0] < 0 or index[0] >= maze_hight: return False
@@ -161,19 +166,21 @@ def is_inside(index,maze_width,maze_hight):
     if index[1] < 0 or index[1] >= maze_width: return False
     # in all other cases index is inside
     return True
-\end
 \end{lstlisting}
 
 Now we can code the loop over all elements:
-\begin{lstlisting}[language=Python,style=codelst]{Python: creating tree from maze}
+\begin{lstlisting}[language=Python,style=codelst,caption={Python: creating tree from maze}]
 def create_tree(maze):
-    # height of the maze is the number of lines in the definition
+    # height of the maze is the number of lines 
+    # in the definition
     height = len(maze)
-    # we are assuming all lines in the definition are of the same length
+    # we are assuming all lines in the definition 
+    # are of the same length
     width = len(maze[0])
     # we are creating empty dictionary ...
     tree = {}
-    # ... and first populate it with path elements mapped to empty lists
+    # ... and first populate it with path elements 
+    # mapped to empty lists
     for i in range(height):
         for j in range(width):
             if maze[i][j]: tree[(i,j)] = []
@@ -201,7 +208,7 @@ Run the program and review results.
 \end{tcolorbox}
 
 As we can see the tree constructed above is different from
-trees we've seen before. No the node contains its parent
+trees we've seen before. Note that a node contains its parent
 in the list of children -- we do not distinguish
 parents and children and operate only with neighbors.
 This creates the following problem: the tree navigation
@@ -210,8 +217,8 @@ children. If parent node in in the list of children
 the loop becomes infinite, or, taking into account
 that we used recursion, recursion becomes infinite.
 
-Similar problem arises when we a maze has loops.
-As a result we may start going in circles:
+Similar problem arises when a maze has loops.
+As a result we may start going into circles:
 
 \begin{labyrinth}{3}{4}
         \h -++
@@ -227,9 +234,9 @@ called a \textbf{graph}. Tree is a graph without loops.
 
 To navigate a graph and find a path between two nodes we
 have to modify the algorithm by keeping a record of visited
-nodes. Updated version of Depth First Search is:
+nodes. Updated version of Depth First Search:
 
-\begin{lstlisting}[language=Python,style=codelst]{Python: DFS with saving visited nodes}
+\begin{lstlisting}[language=Python,style=codelst,caption={Python: DFS with saving visited nodes}]
 def DFS(graph,node,visited):
     # adding new node to the list of visited
     visited.append(node)
@@ -257,7 +264,7 @@ it goes over \textbf{all} nodes. That's not what we need -- the search must
 stop when we come to the exit. We have to add new parameter -- \textbf{goal}
 that identifies the exit node, and to check each node:
 
-\begin{lstlisting}[language=Python,style=codelst]{Python: DFS with saving visited nodes}
+\begin{lstlisting}[language=Python,style=codelst,caption={Python: DFS with checking the goal}]
 def DFS(graph,node,visited,goal):
     visited.append(node)
     # stop if we've reached the goal
@@ -291,11 +298,11 @@ visited nodes to avoid going into a loop.
 The algorithm includes the following steps:
 
 \begin{itemize}
-\item We create an empty list \textbf{P} that will keep our path, and
-an empty list \textbf{V} to keep visited nodes.
-\item We create a list \textbf{Q} that will keep a queue of
-nodes we need to check. In the beginning the list contains
+\item For each node we need to keep path from the start.
+\item We create a list \textbf{Q} that for each node we need to check
+will keep a queue of pairs (path,node). In the beginning the list contains
 only starting node.
+\item We create an empty list \textbf{V} to keep visited nodes.
 \item The main loop continues while we have nodes to visit, or
 in other words -- while the queue \textbf{Q} is not empty.
 \item On each step we take first element of \textbf{Q} as our
@@ -303,30 +310,34 @@ current node and remove it from the queue.
 \item We stop if the current node is our goal.
 \item We skip the current node if it's in \textbf{V}.
 \item In all other cases we append current node to \textbf{V} and
-\textbf{P} and all neighbors of the current node to \textbf{Q}.
+path and all neighbors of the current node to \textbf{Q}.
 \item We continue the main loop.
 \end{itemize}
 
 Here is Python code:
 
-\begin{lstlisting}[language=Python,style=codelst]{Python: Breadth first search}
-def BFS(graph,P,start,goal):
+\begin{lstlisting}[language=Python,style=codelst,caption={Python: Breadth first search}]
+def BFS(graph,start,goal):
     # initializing queue
-    Q = [start]
-    # initalaizing path and list of visited nodes
-    P = []
+    Q = [([start],start)]
+    # initalaizing list of visited nodes
+    V = []
     # main loop while Q is not empty
     while len(Q)>0:
-        current_node = Q[0]
+        path, current_node = Q[0]
         # remove current node from the queue
         Q = Q[1:]
         # are we done?
-        if current_node == goal: return True
+        if current_node == goal: return (path,True)
         # have we already been here?
         if current_node in V: continue
         # saving current node
         V.append(current_node)
-        !!!!!!!!!!!!!!!
+        # loop over all neighbors
+        for neighbor in graph[current_node]:
+            Q.append(([path+[neighbor]],neighbor))
+    # we cannot reach the goal: returning empty path
+    return ([],False)
 \end{lstlisting}
 
 You can rewrite the code using more efficient Python structure \textbf{dqueue}.
@@ -337,9 +348,9 @@ You can rewrite the code using more efficient Python structure \textbf{dqueue}.
 \item compare DFS and BFS for the following maze:
 \begin{labyrinth}{3}{4}
         \h -++
-\v +-+- \h ---
+\v +--- \h ---
 \v ++++ \h ---
-\v +--+ \h +++
+\v +-++ \h +++
 \end{labyrinth}
 \item compare DFS and BFS for bigger maze:
 
