@@ -14,9 +14,9 @@ public class SentenceTreeId {
   }
   
   public void write(BufferedWriter writer) throws IOException {
-    writer.write(counter);
-    writer.write(id);
-    writer.write(sentence);
-    writer.write(tree);
+//    writer.write(Integer.toString(counter)+"\n");
+    writer.write(id+"\n");
+    writer.write(sentence+"\n");
+    writer.write(tree+"\n");
   }
 }

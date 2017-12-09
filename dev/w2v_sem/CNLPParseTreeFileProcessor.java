@@ -33,7 +33,7 @@ public class CNLPParseTreeFileProcessor {
 
     writer = new BufferedWriter(new FileWriter(wordFile));
     for(String w: wordBuffer) {
-      writer.write(w);
+      writer.write(w+"\n");
     }
     writer.close();
   }
@@ -60,12 +60,14 @@ public class CNLPParseTreeFileProcessor {
              }
           }
           counter ++;
+          System.out.println( Integer.toString(dumpId) + " " + 
+                              Integer.toString(counter) );
           if( counter == dumpFrequency ) {
             dumpBuffers(dumpId);
             sentenceBuffer.clear();
             wordBuffer.clear();
             counter = 0;
-            dumpId = 0;
+            dumpId ++;
             System.out.println("Last saved ID: " + id);
           }
         }
