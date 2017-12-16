@@ -1,0 +1,496 @@
+\chapter{Python basics}
+
+\section{Programming -- basic concepts}
+
+Let's start with reviewing elements that don't dependent
+on the programming language and then see how they work in
+Python. Programs implement algorithms and
+as a rule take some data as an input and generate data as an output.
+Data types are domain-specific - different applications require
+different data elements and
+data organization, but the most common types are:
+
+\begin{leftborder}
+\begin{enumerate}
+\item Logical constants: True and False.
+\item Single numbers: last price on the market, number of
+cars on the parking, age, number of seconds between two events,
+universal constants, etc. 5, 3.1415926, 123.97
+\item Text: single characters, words, sentences, documents, text of news
+\item Lists of elements: historical prices, weather records,
+network traffic. Elements of lists can be accessed by their
+position in the list - first element, second element, etc.
+Lists are very common and fundamental in programming and in CS.
+The name of on of eldest programming languages -- LISP --
+stands for LISt Processor.
+\end{enumerate}
+\end{leftborder}
+
+\section{A few words on programming environments}
+If Python is not installed please go to python.org an follow
+instructions for your operating system.
+We assume a student can create a text file with the code of the program
+and execute command:
+
+\begin{lstlisting}[language=bash,style=codelst,caption={Python: runnning program saved in filename.py}]
+python filename.py
+\end{lstlisting}
+
+Traditionally the first program is printing "Hello world!".
+\footnote{Files with source codes of all examples are attached.}
+Here is its listing in Python:
+
+\begin{lstlisting}[style=codelst, language=Python,caption={Python: Hello World!}]
+print "Hello world!"
+\end{lstlisting}
+
+\bigskip
+\begin{tcolorbox}
+\textbf{Assignment:} create file HelloWorld.py with this program
+and run in the command line:
+\begin{lstlisting}[language=bash,frame=single,caption={Python: run HelloWorld.py}]
+python HelloWorld.py
+\end{lstlisting}
+\end{tcolorbox}
+
+\section{Basic types and operations}
+
+The following listing shows very basic operations
+in Python. You can start Python interactive shell by executing
+in command prompt:
+\begin{lstlisting}[language=bash,style=codelst]
+python
+\end{lstlisting}
+in the command line and entering commands one by one:
+
+\begin{lstlisting}[style=codelst,language=Python,caption={Basic types}]
+# Boolean
+b = True
+
+# Integer number
+x = 2
+
+# Float number
+y = 1.23
+
+# String
+s = "Abc"
+
+# List of numbers:
+L = [1,2,3,4,5]
+
+# print everything:
+print b, x, y, s, L
+
+# Operations:
+b2 = not b
+print b, b2
+
+x2 = x * 31
+print x, x2
+
+y2 = y*y
+print y, y2
+
+s2 = s.lower()
+print s, s2
+
+L2 = L[::-1]
+print L, L2
+\end{lstlisting}
+Lines started with \# are comments, they are not executed.
+
+\section{Functions in Python}
+
+We are using "def" to declare new function, list parameters in
+parenthesis, and column ":" in the end of declaration
+For example:
+
+\begin{lstlisting}[style=codelst,language=Python,caption={First function}]
+def f(x): return x*x
+\end{lstlisting}
+
+Here we've declared function \textbf{f}. The function
+ takes one parameter \textbf{x},
+and returns the square of the parameter. The function
+can fail if multiplication is not defined for the parameter \textbf{x} --
+if it's a string for example. 
+
+The function can have more than one line of code. We can re-write
+the function from our example in the following way
+
+\begin{lstlisting}[style=codelst,language=Python,caption={Multi-line function}]
+def f(x):
+    x_squared = x*x
+    return x_squared
+\end{lstlisting}
+Note indentation - usually it's 4 spaces. The indentation defines
+the body of the function and affects "visibility" of variables. 
+Consider the following code:
+
+\begin{lstlisting}[style=codelst,language=Python,caption={Visibility of variables}]
+x = 1
+
+def f(x):
+    x2 = 2*x
+    return x2
+
+def g():
+    x2 = 2*x
+    return x2
+
+print f(2)
+print g()
+\end{lstlisting}
+First we've initialized variable \textbf{x} (line 1). Then we've
+defined two functions:
+
+\begin{enumerate}
+\item \textbf{f} that takes a parameters with the same
+name \textbf{x} and returns \textbf{2*x}. The variable x initialized on
+the line 1 doesn't affect this function and
+on the line 4 the variable \textbf{x} known to
+the function f is equal 2.
+\item \textbf{g} that doesn't take a parameter and returns \textbf{2*x} for
+any \textbf{x} defined before the function call. In this case \textbf{g}
+takes \textbf{x=1} defined on the line 1.
+\end{enumerate}
+
+Functions in Python can be nested - one function can be defined in
+the body of other function:
+
+\begin{lstlisting}[style=codelst,language=Python,caption={Nested functions}]
+x = 1
+
+def f(x):
+    x = 2*x
+    def g(x):
+        x = x+1
+        return x
+    return x + g(7)
+
+print f(2)
+\end{lstlisting}
+There are three independent variables \textbf{x} here.
+Note double indentation -- 8 spaces -- for the body of function \textbf{g}.
+
+\bigskip
+\begin{tcolorbox}
+\textbf{Assignment:}
+What are values of x when you are on the lines 1, 4, 6?
+Add printing value of x in different parts of the code
+to check your answer.
+\end{tcolorbox}
+
+
+\section{Conditions}
+If you program need to change behaviour depending on some condition
+you can use \textbf{if} statement.
+Let's say you want to print numbers in words. On simple way of doing
+this is to check the number and print accordingly.
+
+\begin{lstlisting}[style=codelst,language=Python,caption={Checking conditions}]
+n = 1
+if n = = 1:
+    print "one"
+elif n = = 2:
+    print "two"
+else:
+    print "not one or two"
+\end{lstlisting}
+Here we are using two equality signs without spaces between 
+to check the value.
+\begin{itemize}
+\item First we compare \textbf{n} with 1.
+If n is equal to 1 we print the word "one".
+\item If it's not we compare \textbf{n} with 2 (note the use of \textbf{elif} statement)
+and print accordingly.
+\item For all other cases (\textbf{n} is not 1 or 2) we use keyword \textbf{else}.
+\end{itemize}
+
+
+\section{Loops}
+There exist cases when your program has to iterate over elements
+of a list or a dictionary, or execute some part of a code several times
+probably with different parameters. In such case we can use \textbf{for}
+statement:
+
+\begin{lstlisting}[style=codelst,language=Python,caption="Loop"]
+L = ["a", "b", "c", "def"]
+for e in L:
+    print e
+\end{lstlisting}
+
+Very common is the case when your program iterates over the
+list elements using their indices. Index is position of an element
+in the list:
+
+\begin{lstlisting}[style=codelst,language=Python,caption={Printing list elements by index - 1}]
+L = ["a", "b", "c", "def"]
+for i in range(4):
+    print L[i]
+\end{lstlisting}
+
+\textbf{range(4)} is function returning list of integers from 0 to n-1.
+The code above is equivalent to
+\begin{lstlisting}[style=codelst,language=Python,caption={Printing list elements by index - 2}]
+L = ["a", "b", "c", "def"]
+for i in [0,1,2,3]:
+    print L[i]
+\end{lstlisting}
+Note that indices start from 0: index of the first element is 0, index of
+the second element is 1, etc. For the list of N elements the index of the last element
+is N-1.
+
+
+\section{File input/output}
+
+\subsection{Text files - reading/writing}
+
+Text files of different formats -- not formated plain text,
+comma-separated (CSV), JSON, XML -- are widely used for a number
+of applications and we'll start with reading/writing text.
+
+File is referenced by its name. File name may include directory name.
+To start working with a file you need to open it:
+
+\bigskip
+\lstinline{f = open("filename.txt","r")}
+\bigskip
+
+Here function \textbf{open} takes two parameters - 
+file name and mode of operation.
+The mode \textbf{"r"} opens file for reading 
+starting from the very beginning. Other modes are
+\textbf{"w"} - open for writing. If file doesn't exist it'll 
+be created. If file exists it'll be open as an empty one and 
+existing content will be lost.
+\textbf{"a"} - open for appending. If file exists it'll 
+be open for writing to the end of the file.
+
+The function \textbf{open} returns an object (variable \textbf{f}) 
+used to actually read/write.
+
+After reading/writing is done file must be closed:
+
+\bigskip
+\lstinline{f.close()}
+\bigskip
+
+Here is example:
+
+\begin{lstlisting}[language=Python,style=codelst,caption={File operations}]
+# create a file with one line of text inside:
+f = open("filename.txt","w")
+f.write("Hello world!")
+f.close
+
+# read the file and print its content:
+f = open("filename.txt","r")
+content = f.read()
+f.close
+print content
+
+# append some text to the file
+f = open("filename.txt","a")
+f.write("Hello again")
+f.close
+\end{lstlisting}
+
+\begin{tcolorbox}
+\textbf{Assignments:}
+experiment with opening files in different modes
+and reading/writing. Be careful with modes of operation.
+\end{tcolorbox}
+
+\subsection{Command line arguments. Modules in Python.}
+
+To open a file you need to provide a file name. This can be done
+directly in the code (hardcode the name). In this case you'll need to change
+your program to run for the other file. As an alternative you can
+specify the name as a parameter in the command line:
+
+\begin{lstlisting}[language=bash,frame=single]
+python yourprogram.py filename.txt
+\end{lstlisting}
+
+The code above can be re-written in the following way:
+
+\begin{lstlisting}[language=Python,style=codelst,caption={Command line parameter}]
+import sys
+
+# create a file with one line of text inside:
+f = open(sys.argv[1],"w")
+f.write("Hello world!")
+f.close
+
+# read the file and print its content:
+f = open(sys.argv[1],"r")
+content = f.read()
+f.close
+print content
+
+# append some text to the file
+f = open(sys.argv[1],"a")
+f.write("Hello again")
+f.close
+
+\end{lstlisting}
+
+First line contains new element: \textbf{import sys}.
+Python is has a notion of a module -- the way of organizing
+code. To start using a module it has to be imported.
+
+Module \textbf{sys} provides system-level functionality.
+\textbf{sys.argv} is the list of command line arguments starting
+from the name of Python program file.
+
+\begin{lstlisting}[language=Python,style=codelst,caption={Python: print command line arguments}]
+import sys
+
+for arg in sys.argv:
+    print arg
+\end{lstlisting}
+
+\begin{tcolorbox}
+\textbf{Assignments:}
+\begin{itemize}
+\item Run the code above with different parameters.
+\item Write Python program that prints itself.
+\end{itemize}
+\end{tcolorbox}
+
+This code prints all parts of command line. Note that all 
+parameters (elements of \textbf{sys.argv}) are strings.
+To pass a numerical value you need to convert corresponding parameter:
+
+\begin{lstlisting}[language=Python,style=codelst,caption={Python: numbers in command line}]
+import sys
+
+x = sys.argv[1]
+print x, type(x)
+y = int(x)
+print y, type(y)
+\end{lstlisting}
+
+Function \textbf{type} returns type of the argument --
+string, integer, float, list, etc.
+
+
+\section{File input/output, parsing strings}
+
+Depending on the file format parsing its content 
+may be more or less difficult.
+For purposes of the course we need to parse maze descriptions 
+saved in text files and convert them into trees.
+
+Python program that reads and prints the content of the file:
+
+\begin{lstlisting}[language=Python,style=codelst,caption={Reading file and printing its content}]
+import sys
+
+f = open(sys.argv[1],"r")
+file_content = f.read()
+f.close()
+
+print file_content
+\end{lstlisting}
+
+First we need to split the file content into lines. Lines in files
+end with invisible end-of-line (EOL) symbol or two 
+symbols depending on the
+operating system convention. In most of the cases
+the symbol is \textbf{$\sim n$} or two symbols \textbf{$\sim r\sim n$}.
+Backslash in the beginning indicates a special
+kind of symbols used to format the text. The following code:
+
+\begin{lstlisting}[language=Python,style=codelst,caption={Splitting file into strings}]
+lines = file_content.split("\n")
+print lines
+\end{lstlisting}
+
+\begin{tcolorbox}
+\textbf{Assignment:}
+Combine two pieces of code and confirm the type of 
+variable \textbf{lines} (List).
+Print it element by element.
+\end{tcolorbox}
+
+Next step is to convert each line into a 
+list of logical constants (True, False)
+so that True corresponds to a path and False 
+corresponds to a wall. For example
+convert \textbf{0101010} into 
+\lstinline{[False,True,False,True,False,True,False]}. One way of doing
+this is to go character by character in a loop over the entire string,
+compare characters with 1 and 0, and append new logical value to a list:
+
+\begin{lstlisting}[language=Python,style=codelst,caption={String element by element}]
+line = "0101010"
+num = len(line)
+L = []
+for i in range(num):
+    is_path = line[i] == "1"
+    L.append(is_path)
+\end{lstlisting}
+In this piece of code we first use function \textbf{len} to calculate
+number of characters in the line. Next we create an empty list \textbf{L}.
+We go character by character using their indices in the string
+and compare them with "1". Logical variable 
+\textbf{is\_path} is initialized
+depending on the result of comparison with "1" and then appended to 
+the list.
+
+This way of coding is valid, but not very efficient and compact.
+Instead of using loop we can use so called list comprehensions. For
+a list L the following expression
+
+\bigskip
+\lstinline{[f(x) for x in L]}
+\bigskip
+
+creates a list constructed by applying 
+function \textbf{f} to each element
+of the list. For example:
+
+\begin{lstlisting}[language=Python,style=codelst,caption={Python: list comprehensions}]
+def f1(x):
+    return x*2
+
+def f2(x):
+    return x*x
+
+L = [1,2,3,4]
+L1 = [f1(x) for x in L]
+L2 = [f2(x) for x in L]
+print L, L1, L2
+
+# or the same in place:
+L1 = [x*2 for x in L]
+L2 = [x*x for x in L]
+print L, L1, L2
+\end{lstlisting}
+
+A string in Python can be treated as a list 
+(with some limitations).
+The following code converts string \textbf{line} into a
+list of characters it contains:
+
+\begin{lstlisting}[language=Python,style=codelst,caption={String to list}
+line = "abc"
+L = [x for x in line]
+print line, L
+\end{lstlisting}
+
+Now we can rewrite the code converting string element by element into
+logical variables in the following way:
+
+\begin{lstlisting}[language=Python,style=codelst,caption={Python: string element by element}]
+line = "0101010"
+L = [x=="1" for x in line]
+\end{lstlisting}
+Here we use in place expression \textbf{x=="1"} 
+for each element of the \textbf{line}.
+
+
+

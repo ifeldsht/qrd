@@ -1,4 +1,4 @@
-\documentclass[12pt]{book}
+\documentclass[12pt,oneside]{book}
 \usepackage{geometry}
 \usepackage{qtree}
 \usepackage{float}
@@ -9,7 +9,8 @@
 \usepackage{labyrinth}
 \usepackage{caption}
 \usepackage{subcaption}
-\usepackage{marginnote}
+\usepackage{appendix}
+
 \title{Book 1}
 \author{I.F.}
 
@@ -22,7 +23,9 @@
   showstringspaces=false,
   frame=single,
   numbers=left,
-  backgroundcolor=\color{lstbg} 
+  backgroundcolor=\color{lstbg},
+  float,
+  floatplacement=H 
 }
 
 \newmdenv[topline=false,rightline=false,bottomline=false]{leftborder}
@@ -33,5 +36,14 @@
 
 \include{book00101}
 \include{book00102}
+
+\begin{appendices}
+%\appendixpage
+%\noappendicestocpagenum
+%\addappheadtotoc
+\include{book001a}
+\end{appendices}
+
+
 
 \end{document}

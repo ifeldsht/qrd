@@ -3,3 +3,6 @@
 *.log
 *.pdf
 *.toc
+*.bak
+*.swp
+*.zip
