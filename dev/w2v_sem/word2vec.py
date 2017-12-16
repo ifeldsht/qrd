@@ -1,6 +1,3 @@
-# SRO2vec - generates SRO embeding vectors 
-# Takes files like sro2vec_input10.json, outputs sro2vec_embed10.json
-
 import numpy as np
 import sys
 import random
@@ -26,15 +23,21 @@ def generate_batch(pairs,index,batch_size,epoch):
 
 
 if __name__=="__main__":
-    with open(sys.argv[1],"r") as f:
-        data = json.load(f)
-    pairs = data["pairs"]
+    infile = sys.argv[1]
+    outfile = sys.argv[2]
+
+    with open(infile,"r") as f:
+        pairs = json.load(f)
+
+    with open("words.json","r") as f:
+        voc = json.load(f)
+        voc = voc["voc"]
 
     # parameters
-    batch_size = 128
-    embedding_size = 32
-    voc_size = len(data["dict"])
-    num_sampled = 64
+    batch_size = 1024
+    embedding_size = 300
+    voc_size = len(voc)
+    num_sampled = 128
     # definitions
     graph = tf.Graph()
     with graph.as_default(), tf.device('/cpu:0'):
@@ -48,8 +51,13 @@ if __name__=="__main__":
         softmax_biases = tf.Variable(tf.zeros([voc_size]))
         embed = tf.nn.embedding_lookup(embeddings, train_dataset)
         loss = tf.reduce_mean(
-            tf.nn.sampled_softmax_loss(softmax_weights, softmax_biases, 
-            embed,train_labels, num_sampled, voc_size))
+            tf.nn.sampled_softmax_loss(
+                weights=softmax_weights,
+                biases=softmax_biases, 
+                inputs=embed,
+                labels=train_labels, 
+                num_sampled=num_sampled, 
+                num_classes=voc_size))
         optimizer = tf.train.AdagradOptimizer(1.0).minimize(loss)
         norm = tf.sqrt(tf.reduce_sum(tf.square(embeddings), 1, 
             keep_dims=True))
@@ -58,26 +66,23 @@ if __name__=="__main__":
     index = 0
     epoch = 0    
 
-    num_steps = 1000000
+    num_steps = 30000000
     with tf.Session(graph=graph) as session:
         tf.global_variables_initializer().run()
-        average_loss = 0
+        total_loss = 0
         for step in range(num_steps):
             batch, labels, index, epoch, do_shuffle =\
                  generate_batch(pairs,index,batch_size,epoch)
-            if do_shuffle: random.shuffle(pairs)
+            #if do_shuffle: random.shuffle(pairs)
             feed_dict = {train_dataset:batch, train_labels:labels}
             _, l = session.run([optimizer, loss], feed_dict=feed_dict)
-            average_loss += l
-            if step % 2000 == 0 and step>0:
-                average_loss = average_loss / 2000
-                print('loss %d %d: %f' % (epoch,step, average_loss))
-                average_loss = 0
+            total_loss += l
+            if step % 1000 == 0 and step>0:
+                print('loss %d %d: %f' % (epoch,step,total_loss))
         embeddings = normalized_embeddings.eval()
-
-    data["embeddings"] = embeddings.tolist()
-
-    with open(sys.argv[2],"w") as f:
-        json.dump(data,f)
+        if step % 1000000 == 0 and step>0:
+            with open(outfile,"w") as f: json.dump(embeddings.tolist(),f)
+        
+    with open(outfile,"w") as f: json.dump(embeddings.tolist(),f)
 
 
