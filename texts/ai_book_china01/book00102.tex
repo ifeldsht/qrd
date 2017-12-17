@@ -375,4 +375,82 @@ do search.
 \end{tcolorbox}
 
 
+\section{Unknown maze}
+
+In previous parts we were assuming that we have a maze
+description before we start searching. Our approach
+was to create a full graph and use BFS of DFS to
+find exit. What if we don't have full maze description and
+all we can do is to analyze environment and distinguish
+walls and paths -- we can enter a maze, look around
+and list all possible moves. We can count our steps
+to use (i,j) indices for elements of the maze.
+
+For the simple maze we considered
+in the beginning we don't know anything about elements
+with question marks -- we know our current position (0,0)
+and we see that we can move to (1,0) only.
+
+\begin{labyrinth}{3}{4}
+        \h -++
+\v ++-- \h ---
+\v ++++ \h --+
+\v +--+ \h +++
+\putsymbol(0,3){\raisebox{2pt}{\tiny{0,0}}}
+\putsymbol(1,3){\raisebox{2pt}{\tiny{?}}}
+\putsymbol(2,3){\raisebox{2pt}{\tiny{?}}}
+\putsymbol(0,2){\raisebox{2pt}{\tiny{1,0}}}
+\putsymbol(1,2){\raisebox{2pt}{\tiny{?}}}
+\putsymbol(2,2){\raisebox{2pt}{\tiny{?}}}
+\putsymbol(0,1){\raisebox{2pt}{\tiny{?}}}
+\putsymbol(1,1){\raisebox{2pt}{\tiny{?}}}
+\putsymbol(2,1){\raisebox{2pt}{\tiny{?}}}
+\end{labyrinth}
+
+When we are in (2,1) we remember our path and know that we can 
+move to (2,2) and (1,1):
+
+\begin{labyrinth}{3}{4}
+        \h -++
+\v ++-- \h ---
+\v ++++ \h --+
+\v +--+ \h +++
+\putsymbol(0,3){\raisebox{2pt}{\tiny{0,0}}}
+\putsymbol(1,3){\raisebox{2pt}{\tiny{?}}}
+\putsymbol(2,3){\raisebox{2pt}{\tiny{?}}}
+\putsymbol(0,2){\raisebox{2pt}{\tiny{1,0}}}
+\putsymbol(1,2){\raisebox{2pt}{\tiny{1,1}}}
+\putsymbol(2,2){\raisebox{2pt}{\tiny{?}}}
+\putsymbol(0,1){\raisebox{2pt}{\tiny{2,0}}}
+\putsymbol(1,1){\raisebox{2pt}{\tiny{2,1}}}
+\putsymbol(2,1){\raisebox{2pt}{\tiny{2,2}}}
+\end{labyrinth}
+
+
+Would it be possible for us to find the path? The answer
+is yes, we can find the path even if don't have full graph
+in the beginning -- we can construct it when navigating the
+maze, accumulating the knowledge about the operating environment.
+If we look at DFS or BFS we can easily find that we don't
+need information about the graph, except for the list of
+already visited nodes and the list of neighbors.
+
+Our approach will be to start with empty graph,
+query environment (look around),
+find neighbors and update the graph with new information.
+
+To query environment we'll need a function that returns
+all neighbors for a given (i,j) node. We've already done
+this in the function converting a maze description into
+a graph, only that function went over all maze elements
+and now we need a smaller function for a single element.
+
+\begin{tcolorbox}
+Assignments:
+\begin{itemize}
+\item Write functions that return neighbors.
+\item Adjust BFS and DFS functions to navigate a maze
+with unknown in the beginning graph.
+\end{itemize}
+\end{tcolorbox}
 
