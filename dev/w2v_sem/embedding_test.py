@@ -1,40 +1,50 @@
-import json
+from gensim.models.keyedvectors import KeyedVectors
 import sys
 
+wv = KeyedVectors.load_word2vec_format(sys.argv[1], binary=False)
 
-with open(sys.argv[1],"r") as f:
-    emb = json.load(f)
+print wv.most_similar(positive=['woman', 'king'], negative=['man'])
 
-with open("tests/google_questions_words.json", "r") as f:
-    goog = json.load(f)
+print wv.similarity('woman', 'man')
 
-with open("tests/wordsim353.json","r") as f:
-    ws = json.load(f)
+print wv.evaluate_word_pairs("tests/wordsim353.low.tsv")
 
-def dist(x,y):
-    return 1.0 - sum([x[0]*z[1] for z in zip(x,y)])
+acc = wv.accuracy("tests/google_questions_words.low.txt",restrict_vocab=50000)
+for a in acc: print a["section"], len(a["correct"]), len(a["incorrect"])
 
-def expected(v0,v1,v2):
-    return [ (-x[0]+x[1]+x[2]) for x in zip(v0,v1,v2) ]
+#with open("tests/wordsim353.low.tsv","r")  as f:
+#    d = f.read().split("\n")
+#    for x in d:
+#        ws = x.split("\t")
+#        if ws[0] not in wv: print ws[0]
+#        if ws[1] not in wv: print ws[1]
+
+with open("tests/google_questions_words.low.txt","r") as f:
+    questions = f.read().split("\n")
+
+acc = {}
+current_section = ""
+for q in questions:
+    q = q.strip()
+    if len(q) == 0: continue
+    if q[0] == ":":
+        acc[q] = [0]*10
+        current_section = q
+        continue
+    w = q.split()
+    if w[0] not in wv or w[1] not in wv or \
+       w[2] not in wv or w[3] not in wv:
+        continue
+    sim = wv.most_similar(positive=[w[1],w[2]], negative=[w[0]])
+    counter = 0
+    for s in sim:
+        if s[0] == w[3] and counter < 10:
+            acc[current_section][counter] += 1
+            break
+        counter += 1
+
+for a in acc:
+    print a, sum(acc[a])
+    print acc[a]    
 
 
-# first test
-total_dist = 0
-total_index = 0
-num = len(goog)
-counter = 0
-for g in goog:
-    print counter
-    counter += 1
-    v = [emb[x] for x in g]
-    exp = expected(v[0],v[1],v[2])
-    total_dist += dist(exp,v[3])
-    distances = list(enumerate([dist(exp,x) for x in emb]))
-    distances.sort(key=lambda x: x[1])
-    dist_ids = [x[0] for x in distances]
-    index = dist_ids.index(g[3])
-    total_index += index
-    total_dist += distances[index][1]
-
-print total_dist/num, total_index/num
-    

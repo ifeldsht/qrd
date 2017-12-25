@@ -34,10 +34,10 @@ if __name__=="__main__":
         voc = voc["voc"]
 
     # parameters
-    batch_size = 1024
+    batch_size = 64 
     embedding_size = 300
     voc_size = len(voc)
-    num_sampled = 128
+    num_sampled = 65 
     # definitions
     graph = tf.Graph()
     with graph.as_default(), tf.device('/cpu:0'):
@@ -66,7 +66,7 @@ if __name__=="__main__":
     index = 0
     epoch = 0    
 
-    num_steps = 30000000
+    num_steps = 100000000
     with tf.Session(graph=graph) as session:
         tf.global_variables_initializer().run()
         total_loss = 0
@@ -78,10 +78,12 @@ if __name__=="__main__":
             _, l = session.run([optimizer, loss], feed_dict=feed_dict)
             total_loss += l
             if step % 1000 == 0 and step>0:
-                print('loss %d %d: %f' % (epoch,step,total_loss))
+                print('loss %d %d: %f %f' % (epoch,step,total_loss,l))
+            if step % 1000000 == 0 and step>0:
+                embeddings = normalized_embeddings.eval()
+                with open(outfile,"w") as f: 
+                    json.dump(embeddings.tolist(),f)
         embeddings = normalized_embeddings.eval()
-        if step % 1000000 == 0 and step>0:
-            with open(outfile,"w") as f: json.dump(embeddings.tolist(),f)
         
     with open(outfile,"w") as f: json.dump(embeddings.tolist(),f)
 
