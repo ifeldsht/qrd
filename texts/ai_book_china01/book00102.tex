@@ -272,7 +272,7 @@ def DFS(graph,node,visited,goal):
     for child in graph[node]:
         if child not in visited:
             # mini-assignment: why do we need this check?
-            if DFS(graph,child,visited): return True
+            if DFS(graph,child,visitedi,goal): return True
     # we'll come here if the maze doesn't have a solution
     return False
 \end{lstlisting}
@@ -297,7 +297,7 @@ visited nodes to avoid going into a loop.
 
 The algorithm includes the following steps:
 
-\begin{itemize}
+\begin{enumerate}
 \item For each node we need to keep path from the start.
 \item We create a list \textbf{Q} that for each node we need to check
 will keep a queue of pairs (path,node). In the beginning the list contains
@@ -312,7 +312,7 @@ current node and remove it from the queue.
 \item In all other cases we append current node to \textbf{V} and
 path and all neighbors of the current node to \textbf{Q}.
 \item We continue the main loop.
-\end{itemize}
+\end{enumerate}
 
 Here is Python code:
 
@@ -335,7 +335,7 @@ def BFS(graph,start,goal):
         V.append(current_node)
         # loop over all neighbors
         for neighbor in graph[current_node]:
-            Q.append(([path+[neighbor]],neighbor))
+            Q.append((path+[neighbor],neighbor))
     # we cannot reach the goal: returning empty path
     return ([],False)
 \end{lstlisting}
@@ -344,7 +344,7 @@ You can rewrite the code using more efficient Python structure \textbf{dqueue}.
 
 \begin{tcolorbox}
 \textbf{Assignments:}
-\begin{itemize}
+\begin{enumerate}
 \item compare DFS and BFS for the following maze:
 \begin{labyrinth}{3}{4}
         \h -++
@@ -371,7 +371,7 @@ You can rewrite the code using more efficient Python structure \textbf{dqueue}.
 
 Create file with description of the maze, parse it into graph,
 do search.
-\end{itemize}
+\end{enumerate}
 \end{tcolorbox}
 
 
@@ -447,11 +447,11 @@ and now we need a smaller function for a single element.
 
 \begin{tcolorbox}
 Assignments:
-\begin{itemize}
+\begin{enumerate}
 \item Write functions that return neighbors.
 \item Adjust BFS and DFS functions to navigate a maze
 with unknown in the beginning graph.
-\end{itemize}
+\end{enumerate}
 \end{tcolorbox}
 
 \section{Loading a maze from an image}
@@ -463,7 +463,9 @@ to describe a big maze manually by entering 1s and 0s, so
 let's load mazes from images. Here is an example of hand-drawn
 maze:
 
+\begin{center}
 \includegraphics{maze_1s}
+\end{center}
 
 You can use a drawing program (PaintBrush or an equivalent),
 or draw a maze on paper and then scan or make a picture with
@@ -482,9 +484,13 @@ of three numbers representing red, green, and blue components
 of a color. Each number is between 0 and 255. For example:
 
 (0,0,0) -- black
+
 (255,0,0) -- red
+
 (0,255,0) -- green
+
 (0,0,255) -- blue
+
 (255,255,255) -- white
 
 When all RGB components are equal the color is grey: (128,128,128),
@@ -507,30 +513,34 @@ basics of image processing.
 
 \begin{tcolorbox}
 \textbf{Assignments:}
-\begin{itemize}
+\begin{enumerate}
 \item Load maze from an image file, create a graph, find paths
 using DFS and BFS.
-\item Change code of BFS and DFS to return path and all visited
-nodes.
 \item Load maze from an image file, find paths and visited nodes
-using both DFS and BFS. Adjust the image file: change color
+using both DFS and BFS \footnote{Depending on your system
+settings you may get error message when doing recursive search
+with DFS -- the number of recursion calls is limited to avoid
+infinite recursion. If you see this problem change recursion limit
+before calling DFS function: use \textbf{sys.setrecursionlimit(N)}
+in Python. Experiment with N - try different values.}
+\item Adjust the image file: change color
 or visited nodes to green and path nodes to red. Compare results.
-\end{itemize}
+\end{enumerate}
 \end{tcolorbox}
 
 \section{Adding heuristics - A* search}
 
 Both DFS and BFS can find a path in a maze if it exists.
 At the same time their performance (length of the resulting
-path and number of visited nodes) may not be satisfactory.
+path and number of visited nodes) may not be satisfactory -- 
+sometimes we have to visit all nodes to find the path.
 Time and memory requirements can make the search problematic.
 Can we improve the search? Given the graph of a maze
 (or in more general case -- the graph of our decisions)
 we may try to change the way we choose next step. In
 previous studies we didn't distinguish between node neighbors --
-the order in which we visited them is arbitrary, it depends
-on the way we transform a maze description into a graph and
-it doesn't reflect any idea about a desired order.
+the order in which we visited them was arbitrary, 
+it didn't reflect any idea about a desired order.
 
 Can we change the way we choose the next node to improve
 performance (make a path shorter and reduce the number of
@@ -545,9 +555,107 @@ What would be an "improved" way of choosing next node?
 We are in somewhere inside a maze and have several choices.
 Intuitively we can choose a node that is closer to the exit than others --
 if we know the exit is on the right we may want to move to the
-right neighbor node if it's available.
+right neighbor node if it's available. More accurately we
+need to choose the neighbor so that the number of steps
+from the beginning to the node plus our estimation of
+the distance from the node to the end is minimal. The method
+is called A* (A-Star). Let's try to formalize it.
 
-Let's try to formalize this approach.
+First we'll need a function that returns our estimation
+of the distance from a node to the goal. Given that we can move
+up-down-left-right only the distance between two nodes
+$(i_1,j_1)$ and $(i_2,j_2)$ can be expressed as a sum of
+distances by each direction:
+
+$$ |i_1-i_2| + |j_1-j_2| $$
+
+or as a Python function:
+\begin{lstlisting}[language=Python,style=codelst2,caption={Distance between nodes}]
+def distance(node1,node2):
+    return abs(node1[0]-node2[0]) + abs(node1[1]-node2[1])
+\end{lstlisting}
+
+Similar to BFS we'll keep the queue for nodes to visit, but in A*
+those nodes have to be sorted based on the measure we discussed above
+(number of steps from the beginning plus expected distance).
+This functionality can be implemented with basic Python lists,
+but more convenient is to use already available modules.
+Pythons provides all we need with module \textbf{heapq}. 
+
+Function \textbf{heappush} adds new element to the sorted queue 
+preserving the order. For example adding 2 to the list of [1, 3, 4, 5]
+creates new list on [1, 2, 3, 4, 5]. If element has several
+components \textbf{heappush} the sort order is according to the
+first component. 
+
+Function \textbf{heappop} returns first ("smallest") element from
+the queue and removes it from queue.
+
+Queue element for A* search has to contain the following components:
+\begin{enumerate}
+\item number of steps from the beginning plus estimation of the deistance
+to the end -- the value we'll be using to sort element (remember --
+we want to prioritize nodes with smaller value).
+\item number of steps from the beginning
+\item path from the beginning
+\item node
+\end{enumerate}
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: A* search}]
+from heapq import heappop
+from heapq import heappush
+
+def AStar(graph,start,goal):
+    Q = []
+    heappush( Q, (distance(start,goal),0,[start],start) )
+    V = []
+    while len(Q)>0:
+        dist, from_start, path, current_node = heappop(Q)
+        if current_node == goal: return (path,V,True)
+        if current_node in V: continue
+        V.append(current_node)
+        for neighbor in graph[current_node]:
+            dist = distance(neighbor,goal)
+            Q.append((from_start+dist,from_start+1,path+[neighbor],neighbor))
+    return ([],[],False)
+\end{lstlisting}
+
+You may find that the code is pretty similar to the code of BFS.
+The differences are in the components of \textbf{Q} discussed before,
+and in the use of \textbf{heapq} instead of plain Python lists.
+
+\begin{tcolorbox}
+\textbf{Assignments:}
+\begin{enumerate}
+\item Load maze from an image file, create a graph, find paths
+using A*.
+\item Adjust the image file: change color
+or visited nodes to green and path nodes to red. Compare results 
+(paths and visited nodes) with DFS and BFS.
+\item Experiment with the distance function -- try to introduce
+the distance between nodes in a different way. Compare results.
+\end{enumerate}
+\end{tcolorbox}
+
+\section{Challenge 1: build library of search functions and maze processing}
+
+\begin{tcolorbox}
+\textbf{Python:} please refer to Appendix to learn
+module programming -- file organization and module function access.
+\end{tcolorbox}
+
+By this time you have already developed several useful functions:
+\begin{enumerate}
+\item Search functions: DFS, BFS, A*.
+\item Maze operations: loading from a maze description, loading from an image file.
+\item Creating a graph from a maze description.
+\end{enumerate}
+
+The first challenge in this course is to create Python module providing
+this functionality. Keep search and maze-related functions separately.
+
+After you are done with writing module redo your assignments using
+the module. The goal is learn how to write reusable code.
 
 
 

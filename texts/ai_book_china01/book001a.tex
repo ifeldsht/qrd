@@ -510,7 +510,6 @@ img = Image.open("maze_1s.png")
 imglist = list(img.getdata())
 
 w, h = img.size
-print w, h
 
 for i in range(h):
     row = ["0" if p>192 else "1" for p in imglist[(i*w):((i+1)*w)]]
@@ -527,5 +526,124 @@ new_img.save("test.jpg")
 \end{lstlisting}
 
 Let's review the code line by line:
+\begin{itemize}
+\item Import support for images from PIL package.
+\item Load image from PNG file. 
+\item Extract pixel data and convert it into a list of pixel colors.
+\item Extract image size -- width and height.
+\item In the loop over each row we create and print maze description 
+("0" for wall, "1" for an element of path). Original image is
+in gray -- shadows of gray are coded as integers between 0 and 255.
+High values correspond to light gray. Everything above 192 is considered
+to be a wall, everything darker is a path.
+\item Create a new list: RGB triplets representing the same colors
+as in the original image (all three components -- red, green, blue --
+are identical).
+\item To illustrate pixel color operations we change 100 pixels on the 
+diagonal -- making them red. RGB value (255,0,0) corresponds to red color.
+\item Create new image object: RGB color mode and the same size as in
+the original image.
+\item Create image pixel data from the list of RBG triplets.
+\item Save new image as JPEG file.
+\end{itemize}
+
+You can use basic image operations to illustrate differences 
+between graph search algorithms.
+
+\section{Python modules}
+
+Modules in Python is the way to organize and reuse code.
+In the simplest case module is just a Python file with
+functions or other Python elements.
+
+If file \textbf{A.py} contains the following code:
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: one-file module}]
+def f(x):
+    print "Function f from A.py"
+    return x*x
+\end{lstlisting}
+it can be used from other Python programs or in Python interactive 
+shell:
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: accessing single-file module function - 1}]
+import A
+print A.f(2)
+\end{lstlisting}
+or
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: accessing single-file module function - 2}]
+from A import f
+print f(2)
+\end{lstlisting}
+
+Bigger projects may include multiple files. In this case
+module is organized by directory -- all files are saved to
+the directory and the name of the directory becomes the
+name of the module. In addition to Python files with
+the module-specific functions one more service file is needed:
+\textbf{{\_\_}init{\_\_}.py}. The file may be empty, but normally
+it contains the list of elements. Consider the following
+configuration: directory \textbf{module1} containing
+three files: \textbf{func1.py}, \textbf{func2.py}, 
+\textbf{{\_\_}init{\_\_}.py}. The code in files:
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: sample module -- file \textbf{finc1.py}}]
+def f1(x):
+    print "Function f1 from func1 from module1"
+    return x*x
+
+def f2(x):
+    print "Function f2 from func1 from module1"
+    return -x
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: sample module -- file \textbf{finc2.py}}]
+def f1(x):
+    print "Function f1 from func2 from module1"
+    return x*x*x
+
+def g(x):
+    print "Function g from func2 from module1"
+    return x+1000
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: sample module -- file \textbf{{\_\_}init{\_\_}.py}}]
+__all__=["func1","func2"]
+\end{lstlisting}
+
+There are several ways to access functions from this module:
+
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: accessing module functions - 1}]
+import module1.func1
+import module1.func2
+
+print module1.func1.f1(2)
+print module1.func1.f2(7)
+print module1.func2.f1(3)
+print module1.func2.g(234)
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: accessing module functions - 2}]
+from module1 import *
+
+print func1.f1(2)
+print func1.f2(7)
+print func2.f1(3)
+print func2.g(234)
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: accessing module functions - 3}]
+from module1.func1 import *
+from module1.func2 import f1 as f1A
+from module1.func2 import g
+
+print f1(2)
+print f2(7)
+print f1A(3)
+print g(234)
+\end{lstlisting}
+
+
 
 
