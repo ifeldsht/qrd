@@ -110,7 +110,7 @@ program that can work with different mazes.
 The following piece of code combines reading the file, splitting it into lines and processing lines
 element by element:
 
-\begin{lstlisting}[language=Python,style=codelst,caption={Python: reading a maze description}]
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: reading a maze description}]
 import sys
 
 f = open(sys.argv[1],"r")
@@ -158,7 +158,7 @@ from an index may give new index outside the maze. We'll be
 skipping such cases and first write function that returns True
 if an index is inside the maze, and False if it's outside:
 
-\begin{lstlisting}[language=Python,style=codelst,caption={Python: checking index position}]
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: checking index position}]
 def is_inside(index,maze_width,maze_hight):
     # checking first index component
     if index[0] < 0 or index[0] >= maze_hight: return False
@@ -236,7 +236,7 @@ To navigate a graph and find a path between two nodes we
 have to modify the algorithm by keeping a record of visited
 nodes. Updated version of Depth First Search:
 
-\begin{lstlisting}[language=Python,style=codelst,caption={Python: DFS with saving visited nodes}]
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: DFS with saving visited nodes}]
 def DFS(graph,node,visited):
     # adding new node to the list of visited
     visited.append(node)
@@ -264,7 +264,7 @@ it goes over \textbf{all} nodes. That's not what we need -- the search must
 stop when we come to the exit. We have to add new parameter -- \textbf{goal}
 that identifies the exit node, and to check each node:
 
-\begin{lstlisting}[language=Python,style=codelst,caption={Python: DFS with checking the goal}]
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: DFS with checking the goal}]
 def DFS(graph,node,visited,goal):
     visited.append(node)
     # stop if we've reached the goal
@@ -453,4 +453,104 @@ Assignments:
 with unknown in the beginning graph.
 \end{itemize}
 \end{tcolorbox}
+
+\section{Loading a maze from an image}
+
+So far we were using small mazes. They gave us some idea
+how search algorithms work, but size was not big enough
+to compare performance and resulting paths. It's inconvenient
+to describe a big maze manually by entering 1s and 0s, so
+let's load mazes from images. Here is an example of hand-drawn
+maze:
+
+\includegraphics{maze_1s}
+
+You can use a drawing program (PaintBrush or an equivalent),
+or draw a maze on paper and then scan or make a picture with
+a phone. Make sure lines are thick enough to avoid problems
+with image resizing.
+
+You can see an image as a list of pixels going row by row
+from the top to the bottom. For a tiny image of 4 rows and
+3 columns the first 3 elements of the list (list indices are 0,1,2)
+describe the first row, elements with indices 3,4,5 - the second row, etc...
+
+There is a variety of image formats and color modes. Color mode
+defines the way to describe color of a pixel. Most popular mode
+is RGB (red-green-blue) -- the color is defined as a combination
+of three numbers representing red, green, and blue components
+of a color. Each number is between 0 and 255. For example:
+
+(0,0,0) -- black
+(255,0,0) -- red
+(0,255,0) -- green
+(0,0,255) -- blue
+(255,255,255) -- white
+
+When all RGB components are equal the color is grey: (128,128,128),
+(35,35,35), (233,233,233) are all shadows of grey. For
+grey-scale images the color may be represented by a single number
+between 0 and 255.
+
+We'll not be going into pretty wide area of image processing.
+For purposes of the course we need to be able to read the image
+into a list of pixels, identify image height and width, 
+identify dark pixels
+(we'll be considering them as elements of path), change color
+of a pixel to indicate found path or visited elements, and save
+images into a file.
+
+\begin{tcolorbox}
+\textbf{Python:} please refer to Appendix B to learn
+basics of image processing.
+\end{tcolorbox}
+
+\begin{tcolorbox}
+\textbf{Assignments:}
+\begin{itemize}
+\item Load maze from an image file, create a graph, find paths
+using DFS and BFS.
+\item Change code of BFS and DFS to return path and all visited
+nodes.
+\item Load maze from an image file, find paths and visited nodes
+using both DFS and BFS. Adjust the image file: change color
+or visited nodes to green and path nodes to red. Compare results.
+\end{itemize}
+\end{tcolorbox}
+
+\section{Adding heuristics - A* search}
+
+Both DFS and BFS can find a path in a maze if it exists.
+At the same time their performance (length of the resulting
+path and number of visited nodes) may not be satisfactory.
+Time and memory requirements can make the search problematic.
+Can we improve the search? Given the graph of a maze
+(or in more general case -- the graph of our decisions)
+we may try to change the way we choose next step. In
+previous studies we didn't distinguish between node neighbors --
+the order in which we visited them is arbitrary, it depends
+on the way we transform a maze description into a graph and
+it doesn't reflect any idea about a desired order.
+
+Can we change the way we choose the next node to improve
+performance (make a path shorter and reduce the number of
+visited nodes)? The answer is positive, although the improvement
+is not guaranteed -- we can introduce new algorithm that will
+work better \textbf{on average}, without improving so called
+\textbf{the worst case}. In other words -- it's possible to find
+a case when the algorithm doesn't improve performance, but
+most of the time it works better.
+
+What would be an "improved" way of choosing next node?
+We are in somewhere inside a maze and have several choices.
+Intuitively we can choose a node that is closer to the exit than others --
+if we know the exit is on the right we may want to move to the
+right neighbor node if it's available.
+
+Let's try to formalize this approach.
+
+
+
+
+
 

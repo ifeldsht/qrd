@@ -32,7 +32,7 @@ instructions for your operating system.
 We assume a student can create a text file with the code of the program
 and execute command:
 
-\begin{lstlisting}[language=bash,style=codelst,caption={Python: runnning program saved in filename.py}]
+\begin{lstlisting}[language=bash,style=codelst2,caption={Python: runnning program saved in filename.py}]
 python filename.py
 \end{lstlisting}
 
@@ -40,7 +40,7 @@ Traditionally the first program is printing "Hello world!".
 \footnote{Files with source codes of all examples are attached.}
 Here is its listing in Python:
 
-\begin{lstlisting}[style=codelst, language=Python,caption={Python: Hello World!}]
+\begin{lstlisting}[style=codelst2, language=Python,caption={Python: Hello World!}]
 print "Hello world!"
 \end{lstlisting}
 
@@ -101,7 +101,7 @@ We are using "def" to declare new function, list parameters in
 parenthesis, and column ":" in the end of declaration
 For example:
 
-\begin{lstlisting}[style=codelst,language=Python,caption={First function}]
+\begin{lstlisting}[style=codelst2,language=Python,caption={First function}]
 def f(x): return x*x
 \end{lstlisting}
 
@@ -114,7 +114,7 @@ if it's a string for example.
 The function can have more than one line of code. We can re-write
 the function from our example in the following way
 
-\begin{lstlisting}[style=codelst,language=Python,caption={Multi-line function}]
+\begin{lstlisting}[style=codelst2,language=Python,caption={Multi-line function}]
 def f(x):
     x_squared = x*x
     return x_squared
@@ -123,7 +123,7 @@ Note indentation - usually it's 4 spaces. The indentation defines
 the body of the function and affects "visibility" of variables. 
 Consider the following code:
 
-\begin{lstlisting}[style=codelst,language=Python,caption={Visibility of variables}]
+\begin{lstlisting}[style=codelst2,language=Python,caption={Visibility of variables}]
 x = 1
 
 def f(x):
@@ -154,7 +154,7 @@ takes \textbf{x=1} defined on the line 1.
 Functions in Python can be nested - one function can be defined in
 the body of other function:
 
-\begin{lstlisting}[style=codelst,language=Python,caption={Nested functions}]
+\begin{lstlisting}[style=codelst2,language=Python,caption={Nested functions}]
 x = 1
 
 def f(x):
@@ -184,7 +184,7 @@ you can use \textbf{if} statement.
 Let's say you want to print numbers in words. On simple way of doing
 this is to check the number and print accordingly.
 
-\begin{lstlisting}[style=codelst,language=Python,caption={Checking conditions}]
+\begin{lstlisting}[style=codelst2,language=Python,caption={Checking conditions}]
 n = 1
 if n = = 1:
     print "one"
@@ -210,7 +210,7 @@ of a list or a dictionary, or execute some part of a code several times
 probably with different parameters. In such case we can use \textbf{for}
 statement:
 
-\begin{lstlisting}[style=codelst,language=Python,caption="Loop"]
+\begin{lstlisting}[style=codelst2,language=Python,caption="Loop"]
 L = ["a", "b", "c", "def"]
 for e in L:
     print e
@@ -220,7 +220,7 @@ Very common is the case when your program iterates over the
 list elements using their indices. Index is position of an element
 in the list:
 
-\begin{lstlisting}[style=codelst,language=Python,caption={Printing list elements by index - 1}]
+\begin{lstlisting}[style=codelst2,language=Python,caption={Printing list elements by index - 1}]
 L = ["a", "b", "c", "def"]
 for i in range(4):
     print L[i]
@@ -228,7 +228,7 @@ for i in range(4):
 
 \textbf{range(4)} is function returning list of integers from 0 to n-1.
 The code above is equivalent to
-\begin{lstlisting}[style=codelst,language=Python,caption={Printing list elements by index - 2}]
+\begin{lstlisting}[style=codelst2,language=Python,caption={Printing list elements by index - 2}]
 L = ["a", "b", "c", "def"]
 for i in [0,1,2,3]:
     print L[i]
@@ -340,7 +340,7 @@ Module \textbf{sys} provides system-level functionality.
 \textbf{sys.argv} is the list of command line arguments starting
 from the name of Python program file.
 
-\begin{lstlisting}[language=Python,style=codelst,caption={Python: print command line arguments}]
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: print command line arguments}]
 import sys
 
 for arg in sys.argv:
@@ -359,7 +359,7 @@ This code prints all parts of command line. Note that all
 parameters (elements of \textbf{sys.argv}) are strings.
 To pass a numerical value you need to convert corresponding parameter:
 
-\begin{lstlisting}[language=Python,style=codelst,caption={Python: numbers in command line}]
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: numbers in command line}]
 import sys
 
 x = sys.argv[1]
@@ -381,7 +381,7 @@ saved in text files and convert them into trees.
 
 Python program that reads and prints the content of the file:
 
-\begin{lstlisting}[language=Python,style=codelst,caption={Reading file and printing its content}]
+\begin{lstlisting}[language=Python,style=codelst2,caption={Reading file and printing its content}]
 import sys
 
 f = open(sys.argv[1],"r")
@@ -399,7 +399,7 @@ the symbol is \textbf{$\sim n$} or two symbols \textbf{$\sim r\sim n$}.
 Backslash in the beginning indicates a special
 kind of symbols used to format the text. The following code:
 
-\begin{lstlisting}[language=Python,style=codelst,caption={Splitting file into strings}]
+\begin{lstlisting}[language=Python,style=codelst2,caption={Splitting file into strings}]
 lines = file_content.split("\n")
 print lines
 \end{lstlisting}
@@ -420,7 +420,7 @@ convert \textbf{0101010} into
 this is to go character by character in a loop over the entire string,
 compare characters with 1 and 0, and append new logical value to a list:
 
-\begin{lstlisting}[language=Python,style=codelst,caption={String element by element}]
+\begin{lstlisting}[language=Python,style=codelst2,caption={String element by element}]
 line = "0101010"
 num = len(line)
 L = []
@@ -443,7 +443,6 @@ a list L the following expression
 \bigskip
 \lstinline{[f(x) for x in L]}
 \bigskip
-
 creates a list constructed by applying 
 function \textbf{f} to each element
 of the list. For example:
@@ -471,7 +470,7 @@ A string in Python can be treated as a list
 The following code converts string \textbf{line} into a
 list of characters it contains:
 
-\begin{lstlisting}[language=Python,style=codelst,caption={String to list}
+\begin{lstlisting}[language=Python,style=codelst2,caption={String to list}
 line = "abc"
 L = [x for x in line]
 print line, L
@@ -480,12 +479,53 @@ print line, L
 Now we can rewrite the code converting string element by element into
 logical variables in the following way:
 
-\begin{lstlisting}[language=Python,style=codelst,caption={Python: string element by element}]
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: string element by element}]
 line = "0101010"
 L = [x=="1" for x in line]
 \end{lstlisting}
 Here we use in place expression \textbf{x=="1"} 
 for each element of the \textbf{line}.
 
+\section{Image processing}
+
+To proceed you need to install Python module Pillow. Run
+
+\begin{lstlisting}[language=bash,frame=single]
+pip install Pillow
+\end{lstlisting}
+or refer to online documentation (python-pillow.org) for your
+operating system.
+
+Here is the Python code that loads image from attached PNG file,
+prints image size and mode,
+converts image into list of pixels, prints maze definition,
+creates new list of pixels RGB, changes color of several pixels
+to red, and creates an image for the new list and saves it.
+
+\begin{lstlisting}[language=Python,style=codelst,caption={Python: image operations}]
+from PIL import Image
+
+img = Image.open("maze_1s.png")
+
+imglist = list(img.getdata())
+
+w, h = img.size
+print w, h
+
+for i in range(h):
+    row = ["0" if p>192 else "1" for p in imglist[(i*w):((i+1)*w)]]
+    print "".join(row)
+
+new_imglist = [(x,x,x) for x in imglist]
+for i in range(100):
+    new_imglist[i*w+i] = (255,0,0)
+
+new_img = Image.new("RGB",img.size)
+new_img.putdata(new_imglist)
+
+new_img.save("test.jpg")
+\end{lstlisting}
+
+Let's review the code line by line:
 
 

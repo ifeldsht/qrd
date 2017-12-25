@@ -10,6 +10,8 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{appendix}
+\usepackage{graphicx}
+\graphicspath{{images/}}
 
 \title{Book 1}
 \author{I.F.}
@@ -28,6 +30,15 @@
   floatplacement=H 
 }
 
+\lstdefinestyle{codelst2} {
+  language=Python,
+  showspaces=false, 
+  showstringspaces=false,
+  frame=single,
+  numbers=left,
+  backgroundcolor=\color{lstbg}
+}
+
 \newmdenv[topline=false,rightline=false,bottomline=false]{leftborder}
 
 \begin{document}
@@ -36,11 +47,9 @@
 
 \include{book00101}
 \include{book00102}
+\include{book00103}
 
 \begin{appendices}
-%\appendixpage
-%\noappendicestocpagenum
-%\addappheadtotoc
 \include{book001a}
 \end{appendices}
 
