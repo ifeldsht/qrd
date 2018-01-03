@@ -1,1 +1,193 @@
 \chapter{Solving puzzles}
+
+The problems we were solving so far had a static environment,
+problems didn't change after our decisions -- mazes didn't
+change after our moves, graphs didn't change when we were 
+searching nodes. Real life environments where an autonomous 
+agent is operating may react and change in the result of 
+the agent's decisions. Games like Chess, Checkers, Go give
+good models of changes after players moves.  
+
+\section{8-Puzzle}
+
+In this section we'll consider 8-Puzzle. The puzzle consists of
+3x3 board and 8 tiles enumerated from 1 to 8. In the beginning 
+all tiles are randomly placed on the board:
+
+\begin{center}
+\begin{tabular}{ | l | c | r | }
+    \hline
+    1 & 3 & 8 \\ \hline
+    2 &   & 4 \\ \hline
+    5 & 6 & 7 \\
+    \hline
+  \end{tabular}
+\end{center}
+Tiles can slide to the empty space. In the example above
+a player can move tiles 2, 3, 4, or 6. The goal is to bring tiles
+in the order:
+
+\begin{center}
+\begin{tabular}{ | l | c | r | }
+    \hline
+    1 & 2 & 3 \\ \hline
+    4 & 5 & 6 \\ \hline
+    7 & 8 &   \\
+    \hline
+  \end{tabular}
+\end{center}
+It's important to know that half of all randomly generated
+initial tile positions correspond to non-solvable puzzles.
+Any configuration where two tiles are swapped is not solvable 
+(we'll leave this statement without a proof). For example
+
+\begin{center}
+\begin{tabular}{ | l | c | r | }
+    \hline
+    1 & 2 & 3 \\ \hline
+    4 & 5 & 6 \\ \hline
+    8 & 7 &   \\
+    \hline
+  \end{tabular}
+\end{center}
+(swapped 7 and 8) is not solvable. 
+
+Before we start solving the puzzle we need to learn how to describe it.
+As before with a maze we'll be using pair of indices (i,j) to refer to
+a specific position:
+
+\begin{center}
+\begin{tabular}{ | l | c | r | }
+    \hline
+    (0,0) & (0,1) & (0,2) \\ \hline
+    (1,0) & (1,1) & (1,2) \\ \hline
+    (2,0) & (2,1) & (2,2) \\
+    \hline
+  \end{tabular}
+\end{center}
+First index in a pair identifies a row, second index - a column.
+This representation is convenient for finding neighbors. For example
+neighbors of (1,0) are (0,0), (1,1), and (2,0) - one element of
+a pair is different from (1,0) by one. Note that we need to check
+boundaries -- an index cannot be less than 0 and more than 2.
+
+For other purposes this representation is less convenient and
+a list or a tuple of 9 numbers may be preferable (we'll see how to
+use two representations together soon). For example
+$$
+(1,3,2,5,7,4,0,8,6)
+$$
+corresponds to
+\begin{center}
+\begin{tabular}{ | l | c | r | }
+    \hline
+    1 & 3 & 2 \\ \hline
+    5 & 7 & 4 \\ \hline
+      & 8 & 6  \\
+    \hline
+  \end{tabular}
+\end{center}
+Note that we are using 0 to describe the empty space.
+
+For the beginning we need several service functions:
+\begin{enumerate}
+\item We need a function that returns position indices for any number on
+the board. For example for the board above we need a function
+that returns (1,2) for 4.
+\item We need a function that returns all possible moves for a given
+board. For example for the board above we need a function that returns
+5 and 8.
+\item We need a function that returns updated board after a move.
+For example move 5 (sliding tile 5 down to the empty space) for the 
+board above produces new board $(1,3,2,0,7,4,5,8,6)$
+\item We need to be able to compare two boards and return True for
+identical boards -- we need to check if the current board is our
+goal $(1,2,3,4,5,6,7,8,0)$
+\item We need to be able to generate a random but solvable board. 
+\end{enumerate}
+
+\begin{tcolorbox}
+\textbf{Python:}
+You need to learn how to generate random numbers
+\footnote{To be more accurate we can call them pseudo-random,
+but let's skip this particular aspect.}
+in Python to continue.
+\end{tcolorbox}
+
+1) Position of a particular tile \textbf{n} on a \textbf{board}. The
+board is given as a list of 9 numbers:
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: 8-puzzle, position of a tile}]
+def position(board,n):
+    # go over all rows ...
+    for i in range(3):
+        # ... and over all columns
+        for j in range(3):
+            if board[3*i+j] == n:
+                return (i,j)
+\end{lstlisting}
+The implementation is simple -- we just go row by row and column by column 
+and return a pair of indices when current cell contains required tile.
+
+2) All moves:
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: 8-puzzle, all moves}]
+def moves(board):
+    # position of an empty cell
+    i,j = position(board,0)
+    all_moves = []
+    # above the empty cell
+    if i-1>=0: all_moves.append( board[(i-1)*3+j] )
+    # below the empty cell
+    if i+1<=2: all_moves.append( board[(i+1)*3+j] )
+    # to the left of the empty cell
+    if j-1>=0: all_moves.append( board[i*3+j-1] )
+    # to the right of the empty cell
+    if j+1<=2: all_moves.append( board[i*3+j+1] )
+    return all_moves
+\end{lstlisting}
+Here we create a list of all neighbors of the empty cell -- above,
+below, to the left, and to the right.
+
+3) Board after a move. The move is given by a tile number.
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: 8-puzzle, making a move, returning new board}]
+from copy import copy
+
+def move(board,n):
+    # initializing new board as a copy of the board
+    new_board = copy(board)
+    # position of the empty cell
+    i0, j0 = position(board,0)
+    # position of the moving cell
+    i, j = position(board,n)
+    # swap: a,b=b,a
+    new_board[i0*3+j0],new_board[i*3+j] = \
+    new_board[i*3+j],new_board[i0*3+j0]
+    return new_board
+\end{lstlisting}
+Note the new element -- in the first line we import function 
+\textbf{copy} from the module \textbf{copy}. We need it to
+create a copy of the original board element by element.
+
+4) Comparing two boards
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: 8-puzzle, maing a move, returning new board}]
+from copy import copy
+
+def move(board,n):
+    # initializing new board as a copy of the board
+    new_board = copy(board)
+    # position of the empty cell
+    i0, j0 = position(board,0)
+    # position of the moving cell
+    i, j = position(board,n)
+    # swap: a,b=b,a
+    new_board[i0*3+j0],new_board[i*3+j] = \
+    new_board[i*3+j],new_board[i0*3+j0]
+    return new_board
+\end{lstlisting}
+
+
+
+
