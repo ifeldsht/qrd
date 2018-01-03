@@ -615,8 +615,8 @@ def AStar(graph,start,goal):
         if current_node in V: continue
         V.append(current_node)
         for neighbor in graph[current_node]:
-:            dist = distance(neighbor,goal)
-            Q.append((from_start+dist,from_start+1,path+[neighbor],neighbor))
+            dist = distance(neighbor,goal)
+            heappush(Q,(from_start+dist,from_start+1,path+[neighbor],neighbor))
     return ([],[],False)
 \end{lstlisting}
 
@@ -738,28 +738,36 @@ that takes into account only the path from the beginning and
 doesn't take into account any estimations for the distance to the end.
 
 With that said changes will affect just a couple of lines of
-the original A* implementation. We'll
+the original A* implementation. We'll be using \textbf{heapq}
+to keep the queue accorign to the distance from the start:
 
-\begin{lstlisting}[language=Python,style=codelst2,caption={Python: A* search}]
-def AStar(graph,start,goal):
-    ...
-    heappush( Q, (distance(start,goal),0,[start],start) )
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: Dijkstra search}]
+from heapq import heappop
+from heapq import heappush
+
+def Dijkstra(graph,start,goal):
+    Q = []
+    heappush( Q, (0,[start],start) )
     V = []
     while len(Q)>0:
-        dist, from_start, path, current_node = heappop(Q)
+        from_start, path, current_node = heappop(Q)
         if current_node == goal: return (path,V,True)
         if current_node in V: continue
         V.append(current_node)
-        for neighbor in graph[current_node]:
-            dist = distance(neighbor,goal)
-            Q.append((from_start+dist,from_start+1,path+[neighbor],neighbor))
+        for neighbor, weight in graph[current_node]:
+            heappush(Q,(from_start+weigth,path+[neighbor],neighbor))
     return ([],[],False)
 \end{lstlisting}
 
-
+\begin{tcolorbox}
+\textbf{Assignment:} combine weighted graph definition and the code
+of Dijkstra's algorithm, run the program. Adjust the code to output
+distance from the beginning and the number of steps along with the path.
+\end{tcolorbox}
 
 \section{Challenge 1} 
 \subsection{Build library of search functions and maze processing}
+The goal is learn how to write reusable code.
 
 \begin{tcolorbox}
 \textbf{Python:} please refer to Appendix to learn
@@ -768,7 +776,7 @@ module programming -- file organization and module function access.
 
 By this time you have already developed several useful functions:
 \begin{enumerate}
-\item Search functions: DFS, BFS, A*.
+\item Search functions: DFS, BFS, A*, Dijkstra.
 \item Maze operations: loading from a maze description, loading from an image file.
 \item Creating a graph from a maze description.
 \end{enumerate}
@@ -776,8 +784,33 @@ By this time you have already developed several useful functions:
 The first challenge in this course is to create Python module providing
 this functionality. Keep search and maze-related functions separately.
 
-After you are done with writing module redo your assignments using
-the module. The goal is learn how to write reusable code.
+After you are done with writing module review your assignments 
+and complete them using the module you created.
+
+\subsection{Finding short path between cities}
+
+Please refer to the road map of you country, select 10-15 cities, and
+find road distances between them. Create a graph that represents your
+findings. Use Dijkstra's algorithm to find short paths between distant
+cities.
+
+Use your knowledge of A* and Dijkstra's algorithms and come up with
+heuristic function to improve the search performance -- add estimation
+of the distance from the current node to the goal 
+to the Dijkstra's algorithm.
+
+\subsection{Around the world in the shortest time}
+
+Please refer to international flight schedule, find 10-20 cities
+over the world, and flights between them. Collect flight and connection
+times, create graph description, find the shortest time to travel
+around the world. 
+
+
+
+
+
+
 
 
 
