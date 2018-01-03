@@ -615,7 +615,7 @@ def AStar(graph,start,goal):
         if current_node in V: continue
         V.append(current_node)
         for neighbor in graph[current_node]:
-            dist = distance(neighbor,goal)
+:            dist = distance(neighbor,goal)
             Q.append((from_start+dist,from_start+1,path+[neighbor],neighbor))
     return ([],[],False)
 \end{lstlisting}
@@ -637,7 +637,129 @@ the distance between nodes in a different way. Compare results.
 \end{enumerate}
 \end{tcolorbox}
 
-\section{Challenge 1: build library of search functions and maze processing}
+
+\section{Weighted graphs}
+
+As we already know graph is given by nodes and edges. One can think
+about nodes as dots and about edges as lines connecting
+a pair of nodes. Tree is a special case of graphs -- graph without loops.
+We used different ways to name nodes -- words, when describing
+path from street to classroom, (i,j) pair representing
+position of a node in a maze. Going forward we'll be
+enumerating nodes or assign them letters for compactness.
+
+So far all edges where identical -- no weight was assigned
+to an edge. At the same time there are applications where
+weight can be introduced in a very natural way. If, for example,
+nodes are cities connected by roads we can think about weights
+as distances between cities. Graphs with weights assigned to
+edges are called weighted graphs \footnote{We'll be assuming
+all weights are positive.}. They appear in a number of
+problems of logistics and planning when the cost of
+each decision is different. Consider famous
+"Travelling salesman problem" -- a salesman has to visit
+several cities and he knows distances between them (not all
+cities are connected by roads). He has to choose the shortest path.
+In this case cities are nodes and edge weights are distances
+between cities connected by roads.
+
+Consider the following graph:
+
+\begin {center}
+\begin {tikzpicture}[-latex,auto,node distance=4cm and 5cm,
+on grid,semithick,
+state/.style ={circle,draw,minimum width=1cm}]
+\node[state] (A) {A};
+\node[state] (B) [above=of A] {B};
+\node[state] (C) [right=of A] {C};
+\node[state] (D) [right=of B] {D};
+\path (A) edge [bend left=20] node[above] {$3$} (B);
+\path (A) edge [bend left=20] node[right] {$7$} (C);
+\path (A) edge [bend left=20] node[right] {$8$} (D);
+\path (B) edge [bend left=20] node[below] {$4$} (A);
+\path (B) edge [bend right=5] node[right] {$1$} (C);
+\path (B) edge [bend left=20] node[right] {$11$} (D);
+\path (C) edge [bend left=20] node[above] {$2$} (D);
+\path (D) edge [bend left=20] node[below] {$3$} (C);
+\end{tikzpicture}
+\end{center}
+
+
+What is the shortest path from A to D? Let's review possible paths:
+$$
+A \rightarrow D: 8
+$$
+$$
+A \rightarrow B \rightarrow D: 3 + 11 = 14
+$$
+$$
+A \rightarrow C \rightarrow D: 7 + 2 = 9
+$$
+$$
+A \rightarrow B \rightarrow C \rightarrow D: 3 + 1 + 2 = 6
+$$
+The shortest path directly from A to D appears to be not the
+shortest one taking into account edge weights. You can easily 
+imagine how this happens in reality -- 
+the shortest path may be a steepest one,
+or part of the path may include toll roads, etc. 
+The choice of the shortest
+path has to take into account weights, and depending on the specific problem
+weights may reflect actual distance, tolls, traffic,
+flight time, or road conditions.
+
+By this time you already know several path-finding algorithms. 
+Adding weights will not change much.
+
+\begin{tcolorbox}
+\textbf{Assignment:} think which algorithm out of those you already
+know -- DFS, BFS, A* -- may be used for finding paths in weighted graphs.
+Hit -- the algorithm must explicitly account for the path length.
+\end{tcolorbox}
+
+To implement the search in a weighted graph we first have to learn
+how to describe such graphs -- how to add weights to lists of
+neighbors. Simple way of doing this in Python is to use dictionaries
+and describe each neighbor not only by name, but also by weight. The graph
+from the picture above:
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: weighted graphs}]
+graph = {}
+graph["A"] = [("B",3),("C",7),("D",8)]
+graph["B"] = [("A",4),("C",1),("D",11)]
+graph["C"] = [("D",2)]
+graph["D"] = [("C",3)]
+\end{lstlisting}
+Here each neighbor is given by the pair of the name and weight.
+
+One of the most well-known algorithms of finding short paths in
+weighted graphs is Dijkstra's algorithm. It can be viewed as A*
+that takes into account only the path from the beginning and
+doesn't take into account any estimations for the distance to the end.
+
+With that said changes will affect just a couple of lines of
+the original A* implementation. We'll
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: A* search}]
+def AStar(graph,start,goal):
+    ...
+    heappush( Q, (distance(start,goal),0,[start],start) )
+    V = []
+    while len(Q)>0:
+        dist, from_start, path, current_node = heappop(Q)
+        if current_node == goal: return (path,V,True)
+        if current_node in V: continue
+        V.append(current_node)
+        for neighbor in graph[current_node]:
+            dist = distance(neighbor,goal)
+            Q.append((from_start+dist,from_start+1,path+[neighbor],neighbor))
+    return ([],[],False)
+\end{lstlisting}
+
+
+
+\section{Challenge 1} 
+\subsection{Build library of search functions and maze processing}
 
 \begin{tcolorbox}
 \textbf{Python:} please refer to Appendix to learn
