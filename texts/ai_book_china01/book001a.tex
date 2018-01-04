@@ -1,5 +1,9 @@
 \chapter{Python basics}
 
+This section covers elements of Python programming required to
+complete the course. Please refer to a systematic course on Python
+to learn more advanced elements of the language.
+
 \section{Programming -- basic concepts}
 
 Let's start with reviewing elements that don't dependent
@@ -15,19 +19,19 @@ data organization, but the most common types are:
 \item Logical constants: True and False.
 \item Single numbers: last price on the market, number of
 cars on the parking, age, number of seconds between two events,
-universal constants, etc. 5, 3.1415926, 123.97
+universal constants, etc. 5, 3.1415926, 123.97.
 \item Text: single characters, words, sentences, documents, text of news
 \item Lists of elements: historical prices, weather records,
 network traffic. Elements of lists can be accessed by their
 position in the list - first element, second element, etc.
 Lists are very common and fundamental in programming and in CS.
-The name of on of eldest programming languages -- LISP --
+The name of one of the eldest programming languages -- LISP --
 stands for LISt Processor.
 \end{enumerate}
 \end{leftborder}
 
 \section{A few words on programming environments}
-If Python is not installed please go to python.org an follow
+If Python is not installed please go to python.org and follow
 instructions for your operating system.
 We assume a student can create a text file with the code of the program
 and execute command:
@@ -91,6 +95,12 @@ print s, s2
 
 L2 = L[::-1]
 print L, L2
+
+a = 2
+b = "A"
+print a, b
+a, b = b, a
+print a, b
 \end{lstlisting}
 Lines started with \# are comments, they are not executed.
 Create file with commands and execute it. 
@@ -381,6 +391,9 @@ saved in text files and convert them into trees.
 
 Python program that reads and prints the content of the file:
 
+%%%
+\newpage
+
 \begin{lstlisting}[language=Python,style=codelst2,caption={Reading file and printing its content}]
 import sys
 
@@ -512,7 +525,8 @@ imglist = list(img.getdata())
 w, h = img.size
 
 for i in range(h):
-    row = ["0" if p>192 else "1" for p in imglist[(i*w):((i+1)*w)]]
+    row = ["0" if p>192 else "1" \
+           for p in imglist[(i*w):((i+1)*w)]]
     print "".join(row)
 
 new_imglist = [(x,x,x) for x in imglist]
@@ -613,6 +627,8 @@ __all__=["func1","func2"]
 
 There are several ways to access functions from this module:
 
+%%%
+\newpage
 
 \begin{lstlisting}[language=Python,style=codelst2,caption={Python: accessing module functions - 1}]
 import module1.func1
@@ -643,6 +659,111 @@ print f2(7)
 print f1A(3)
 print g(234)
 \end{lstlisting}
+
+\section{Random numbers}
+
+There exist algorithms that require a random number generator.
+You may want to simulate a coin toss and to generate a sequence
+of 0s and 1s, or to generate a random initial state, like we did in
+the section on 8-puzzle in this course. 
+
+Python provides support for random numbers in the \textbf{random}
+module. Here is the code that can be used to generate a sequence of
+0s and 1s:
+
+%%%
+\newpage
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: random numbers, simulating a coin toss}]
+from random import randint
+for i in range(10):
+    print randint(0,1)
+\end{lstlisting}
+The function \textbf{randint(A,B)} from the module \textbf{random}
+returns a random integer from A to B inclusive. If you call this
+function many times each number will appear equal number of times --
+the function generates numbers \textbf{uniformly distributed}.
+You can adjust the code above and confirm this -- just count the number 
+of 0s and 1s after 100 or 1000 calls of the function.
+
+The other useful function from the module \textbf{random} is
+\textbf{random} (function name is the same as the module name):
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: random numbers in the interval (0,1)}]
+from random import random
+for i in range(10):
+    print random()
+\end{lstlisting}
+The function doesn't take a parameter and returns a number between 0 and 1.
+Numbers are also uniformly distributed -- if you call this function 
+many times the number of cases when function returns a value in any 
+interval of a given size will be the same. For example -- the number
+of cases when the value is below 0.5 and above 0.5 (intervals (0,0.5)
+and (0.5,1) are of equal sizes), or is in the interval (0.23,0.33) 
+and (0.58,0.68).
+
+For purposes of this course we don't need other types of 
+distributions and other functions from the module.
+
+\section{Coding problems}
+
+The best way to build practical skills in programming is to do
+real development and solve practical problems with your language
+of choice. In this section we present coding problems -- from elementary
+to more complex. You can do them in an arbitrary order. Those of
+you who are interested in solving advanced problems can start 
+with Project Euler \footnote{https://projecteuler.net/}.
+
+Problems:
+
+\begin{enumerate}
+\item Write a function that takes a day of a week (for example "Monday")
+as a parameter and returns True for weekends and False for weekdays.
+\item Write a function that takes a day of a year and returns 
+the month. For example given 67 it returns "March".
+\item Define night as the time between 22:00 and 5:50. 
+Write a function that takes hours and minutes and returns True if
+it's night and False otherwise. For example True for 23 and 4:41, 
+an False for 5:51.
+\item Write a function that parses string with a date and returns
+all elements -- year, month, day as integers. For example, for
+"January 04, 2018" it returns (2018,1,4). You can assume this format of
+the date (month as a string, two-digit day, comma, four-digit year).
+\item Write a function that removes all spaces from a given string
+and makes first letters of all words in the upper case. For example
+it converts "This is a sample string." into "ThisIsASampleString".
+\item Write a function that reads a text file and returns word frequencies 
+-- for each word it calculates the number of cases it appears in the
+text.
+\item Write a function that returns all unique elements of a list. 
+For example, for [1,2,1,4,5,2] it returns [1,2,4,5].
+\item Write a function that returns a sums of two sequential elements of
+a list. For example, for [1,2,3,10,20] it returns [3,5,13,30]. 
+\item Write a function that sorts a list (do not use sorting functions 
+provided by Python). 
+\item Write a function that for a given dictionary (key:value pairs)
+returns (value:[key]) dictionary. For example, for {"a":1,"b":2,"c":1}
+it returns {1:["a","c"],2:["b"]}
+\item Write a function that rounds a number (do not use rounding functions
+provided by Python).
+\item Write a function that transposes a list of lists. For example,
+for [[1,2,3],[4,5,6]] it returns [[1,4],[2,5],[3,6]].
+\item Write a function that returns True for prime numbers and
+False otherwise.
+\item Write a function that for a given number 
+returns all prime numbers below it. For example, for 15 returns
+[2,3,5,7,11,13].
+\item Write a function that returns all possible combinations
+of two elements for a given list. For example, for [1,2,3] it
+returns [[1,2],[1,3],[2,3],[2,1],[3,1],[3,2]] (do not use
+functions available in Python).
+\end{enumerate}
+
+Try to find more than one solution. 
+
+
+
+
 
 
 

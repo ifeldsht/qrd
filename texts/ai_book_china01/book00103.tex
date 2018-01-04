@@ -109,11 +109,10 @@ goal $(1,2,3,4,5,6,7,8,0)$
 \begin{tcolorbox}
 \textbf{Python:}
 You need to learn how to generate random numbers
-\footnote{To be more accurate we can call them pseudo-random,
-but let's skip this particular aspect.}
 in Python to continue.
 \end{tcolorbox}
 
+\section{Service functions}
 1) Position of a particular tile \textbf{n} on a \textbf{board}. The
 board is given as a list of 9 numbers:
 
@@ -126,8 +125,8 @@ def position(board,n):
             if board[3*i+j] == n:
                 return (i,j)
 \end{lstlisting}
-The implementation is simple -- we just go row by row and column by column 
-and return a pair of indices when current cell contains required tile.
+We just go row by row and column by column 
+and return a pair of indices for the required tile.
 
 2) All moves:
 
@@ -172,22 +171,288 @@ create a copy of the original board element by element.
 
 4) Comparing two boards
 
-\begin{lstlisting}[language=Python,style=codelst2,caption={Python: 8-puzzle, maing a move, returning new board}]
-from copy import copy
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: 8-puzzle, comparing board}]
+def cmp_boards(b1,b2):
+    return tuple(b1)==tuple(b2)
+\end{lstlisting}
+Note that we need to compare two boards given by 
+lists component by component.
+This can be done either in a loop, or by converting lists into
+tuples -- tuples are compared by components in Python.
 
-def move(board,n):
-    # initializing new board as a copy of the board
+%%%
+\newpage
+
+5) Generating a random solvable board.
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: 8-puzzle, generating a board}]
+from copy import copy
+from random import random
+from random import randint
+
+def generate(board):
     new_board = copy(board)
-    # position of the empty cell
-    i0, j0 = position(board,0)
-    # position of the moving cell
-    i, j = position(board,n)
-    # swap: a,b=b,a
-    new_board[i0*3+j0],new_board[i*3+j] = \
-    new_board[i*3+j],new_board[i0*3+j0]
+    for _ in range(randint(10,20)):
+        all_moves = moves(new_board)
+        random_move_index = randint(0,len(all_moves)-1)
+        random_move = all_moves[random_move_index]
+        new_board = move(new_board,random_move)
     return new_board
 \end{lstlisting}
+We are starting with some board and making several randomly chosen 
+moves. Here the number of moves is also random -- between 10 and 20.
+In the loop we first find all possible moves for the current board.
+Next we choose a random move from the list of all possible and 
+making the move updating the board. If we start with a solvable 
+board ([1,2,3,4,5,6,7,8,0]) we'll generate a solvable initial
+board.
+
+\begin{tcolorbox}
+\textbf{Assignments:}
+\begin{enumerate}
+\item Write a function that prints a board. Use space instead of 0
+for the empty space. For example for the board
+given as a list [1,3,7,0,5,6,8,2,4] it prints
+\begin{lstlisting}[language=bash]
+137
+ 56
+824
+\end{lstlisting}
+\item Write a function that generates and prints a solvable board.
+\end{enumerate}
+\end{tcolorbox}
+
+\section{BFS}
+Now as we have all service function, let's implement BFS for solving
+the puzzle. The code is pretty similar to BFS we developed for
+finding a path in a maze:
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: 8-puzzle, BFS}]
+def Puzzle8BFS(board,goal):
+    Q = [([],board)]
+    V = []
+    while len(Q) > 0:
+        path, cur = Q[0]
+        Q = Q[1:]
+        if cmp_boards(cur,goal): return (True,path)
+        if tuple(Q) in V: continue
+        V.append(tuple(cur))
+        for m in moves(cur):
+            Q.append((path+[m],move(cur,m)))
+    return (False,[])
+\end{lstlisting}
+Similar to a maze problem we are creating a queue and a list of 
+boards we already tried. The queue element is a pair: list of all moves
+made before and the resulting board. While we have anything in the queue
+we are taking its first element. If the board is our goal
+we are returning True completion flag along with the 
+list of moves we made to
+solve the puzzle. If not and the board (\textbf{cur}) is in
+the list of already visited we are skipping it. 
+Otherwise we are continuing with the board and first we are appending
+it to the list of visited. Next step is similar to the loop in
+the BFS for mazes, only neighbors are substituted with all possible
+moves -- we are appending pairs of moves and resulting boards
+to the queue.
+
+\begin{tcolorbox}
+\textbf{Assignment:}
+Combine all service functions with BFS function,
+generate initial random board and solve the puzzle.
+Experiment with the number of random moves used to generate 
+initial board -- change (10,20) to (100,200) or any other
+bigger numbers.
+\end{tcolorbox}
+
+You may find that the time needed to solve the puzzle can be
+big. Let's add some measure to quantify time and memory
+requirements -- number of steps needed to solve and maximum
+size of the queue:
+
+%%%
+\newpage
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: 8-puzzle, BFS with counters}]
+def Puzzle8BFS(board):
+    Q = [([],board)]
+    V = []
+    counter = 0
+    max_size = 0
+    while len(Q) > 0:
+        path, cur = Q[0]
+        Q = Q[1:]
+        if cmp_boards(cur,goal): 
+            return (True,counter,max_size,path)
+        if tuple(Q) in V: continue
+        V.append(tuple(cur))
+        for m in moves(cur):
+            Q.append((path+[m],move(cur,m)))
+        if max_size < len(Q): max_size = len(Q)
+        counter += 1
+    return (False,counter,max_size,[])
+\end{lstlisting}
+Now we can see how different are numbers of steps and size of the 
+queue for different initial boards.
+
+\section{A*}
+The number of moves and the resulting execution time
+may be not satisfactory -- we need to improve the algorithm.
+
+Similar to finding paths in mazes we need to rank possible moves --
+order them based on some estimation of a move quality. For mazes
+the estimation was based on the geometrical distance from the
+current node to the goal. We need to introduce a distance 
+from a current board to the goal.
+
+Let's start with a simpler question -- how to introduce
+the distance if we have only one tile and 8 empty spaces.
+The tile is moved out of it's expected place:
+\begin{center}
+\begin{tabular}{ | l | c | r | }
+    \hline
+      &   &   \\ \hline
+      &   &   \\ \hline
+      & 1 &   \\
+    \hline
+  \end{tabular}
+\end{center}
+1 has to be in the top left position. We need to make two moves up 
+and 1 move to the left. We can consider this number of moves from the
+current position of a tile to the goal as a distance for a 
+single tile. The sum of these distances for all tiles is the distance
+for the board. Consider the following board:
+ 
+\begin{center}
+\begin{tabular}{ | l | c | r | }
+    \hline
+    1 & 3 & 8 \\ \hline
+    2 &   & 4 \\ \hline
+    5 & 6 & 7 \\
+    \hline
+  \end{tabular}
+\end{center}
+We need:
+
+0 moves for the tile 1
+
+1 move for the tile 2
+
+1 move for the tile 3
+
+2 moves for the tile 4
+
+2 moves for the tile 5
+
+2 moves for the tile 6
+
+2 moves for the tile 7
+
+3 moves for the tile 8
+
+Total distance is $0+1+1+2+2+2+2+3=13$
+
+Here is the code that implements the distance calculations
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: 8-puzzle, distance between boards}]
+def dist(b1,b2):
+    total_dist = 0
+    for i1 in range(3):
+        for j1 in range(3):
+            i2, j2 = position(b2,b1[i1*3+j1])
+            total_dist += abs(i1-i2) + abs(j1-j2)
+    return total_dist
+\end{lstlisting}
+We go in the loops over 3 rows and 3 columns.
+For each cell ($i_1,j_1$) we have the tile number 
+on the first board and can get the position ($i_2,j_2$) of that number on
+the second board. Next we are increasing the total distance
+by $|i_1-i_2|+|j_1+j_2|$. Note that the procedure counts also
+for the empty cell.
+
+Now as we have the notion of the distance from the current board
+to the goal the next step should already be clear -- 
+we can write the version of A* search algorithm.
+
+%%%
+\newpage
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: 8-puzzle, A*}]
+from heapq import heappop
+from heapq import heappush
+
+def Puzzle8AStar(board,goal):
+    Q = []
+    heappush(Q,(dist(board,goal),[],board))
+    V = []
+    counter = 0
+    max_size = 0
+    while len(Q) > 0:
+        _, path, cur = heappop(Q)
+        if cmp_boards(cur,goal): 
+            return (True,counter,max_size,path)
+        if tuple(Q) in V: continue
+        V.append(tuple(cur))
+        for m in moves(cur):
+            m_board = move(cur,m)
+            heappush(Q,(dist(m_board,goal),path+[m],m_board))
+        if max_size < len(Q): max_size = len(Q)
+        counter += 1
+    return (False,counter,max_size,[])
+\end{lstlisting}
+As before we are using \textbf{heapq} module to work with
+sorted elements. Each element of the queue has three
+components now -- the distance to the goal (it's the first
+element used for sorting), list of moves
+executed from the original board, the board.
+
+\begin{tcolorbox}
+\textbf{Assignment:}
+Combine all functions we've developed in this chapter,
+generate initial boards and solve the puzzle with
+BFS and A*. Compare the numbers of steps and maximum 
+queue sizes in BFS and A*. Compare number of moves need to
+solve the puzzle with BFS and A*.
+\end{tcolorbox}
 
 
+You may find that A* works faster and requires less memory,
+but it may produce the puzzle solution with more moves
+than BFS. A* doesn't guarantee the smallest number of moves,
+but on average it works faster than BFS.
 
+\section{Challenge}
 
+Implement the N-puzzle -- adjust the code developed in this
+chapter to make the size of the board a parameter. For example
+15-puzzle (4x4 board):
+
+\begin{center}
+\begin{tabular}{ | l | c | c | r | }
+    \hline
+    1 & 2 & 3 & 4 \\ \hline
+    5 & 6 & 7 & 8 \\ \hline
+    9 & 10 & 11 & 12 \\ \hline
+    13 & 14 & 15 & \\
+    \hline
+  \end{tabular}
+\end{center}
+
+Implement this puzzle on a non-square board, for example on the board
+4x3:
+
+\begin{center}
+\begin{tabular}{ | l | c | c | r | }
+    \hline
+    1 & 2 & 3 \\ \hline
+    4 & 5 & 6 \\ \hline
+    7 & 8 & 9 \\ \hline
+    10 & 11 &  \\
+    \hline
+  \end{tabular}
+\end{center}
+
+Try to introduce a different distance between the board and the goal.
+In the chapter we've introduced the distance as a sum of distances
+of all tiles. You may consider for example not a sum, but max distance.
+You can come up with a generated initial board and compete for the
+smallest number of steps of A* algorithm.

@@ -264,6 +264,9 @@ it goes over \textbf{all} nodes. That's not what we need -- the search must
 stop when we come to the exit. We have to add new parameter -- \textbf{goal}
 that identifies the exit node, and to check each node:
 
+%%%
+\newpage
+
 \begin{lstlisting}[language=Python,style=codelst2,caption={Python: DFS with checking the goal}]
 def DFS(graph,node,visited,goal):
     visited.append(node)
@@ -601,6 +604,9 @@ we want to prioritize nodes with smaller value).
 \item node
 \end{enumerate}
 
+%%%
+\newpage
+
 \begin{lstlisting}[language=Python,style=codelst2,caption={Python: A* search}]
 from heapq import heappop
 from heapq import heappush
@@ -616,7 +622,8 @@ def AStar(graph,start,goal):
         V.append(current_node)
         for neighbor in graph[current_node]:
             dist = distance(neighbor,goal)
-            heappush(Q,(from_start+dist,from_start+1,path+[neighbor],neighbor))
+            heappush(Q,(from_start+dist,from_start+1,\
+                        path+[neighbor],neighbor))
     return ([],[],False)
 \end{lstlisting}
 
@@ -741,6 +748,9 @@ With that said changes will affect just a couple of lines of
 the original A* implementation. We'll be using \textbf{heapq}
 to keep the queue accorign to the distance from the start:
 
+%%%
+\newpage
+
 \begin{lstlisting}[language=Python,style=codelst2,caption={Python: Dijkstra search}]
 from heapq import heappop
 from heapq import heappush
@@ -755,7 +765,8 @@ def Dijkstra(graph,start,goal):
         if current_node in V: continue
         V.append(current_node)
         for neighbor, weight in graph[current_node]:
-            heappush(Q,(from_start+weigth,path+[neighbor],neighbor))
+            heappush(Q,(from_start+weigth,\
+                        path+[neighbor],neighbor))
     return ([],[],False)
 \end{lstlisting}
 
