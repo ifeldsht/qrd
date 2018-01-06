@@ -1,0 +1,110 @@
+\documentclass{beamer}
+ 
+\usepackage{graphicx}
+\usepackage{qtree}
+\usepackage[utf8]{inputenc}
+\title{AI \& ML Introduction}
+\author{I.F.}
+\institute{mlschool2017.wordpress.com, repl.it}
+
+\date{2018.01.06}
+\begin{document}
+ 
+\frame{\titlepage}
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}
+\frametitle{The course plan}
+
+\begin{enumerate}
+\item Discrete decisions. Trees, search in trees.
+\item Labyrinths, searching path -- different approaches.
+\item Adding heuristics.
+\item Weighted graphs, shortest paths.
+\item Puzzles, 8-puzzle.
+\item Two-player games, tic-tac-toe.
+\item Tic-tac-toe: minimax, reinforcement learning.
+\item Unknown environment, finding rules from observations.
+\item Neural networks, finding rules of "Life".
+\item Data analysis techniques.
+\item Regression, approximations.
+\item Forecast in time series.
+\item Clustering, discrete states.
+\item Decision trees.
+\item What's next.
+\end{enumerate}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}
+\frametitle{Python}
+
+\begin{enumerate}
+\item python.org
+\item Command line tools.
+\item Basic types: numbers, string, boolean variables.
+\item Lists, dictionaries.
+\item Operations: loops, conditional statements.
+\item Functions.
+\item Modules.
+\item File input/output
+\item Useful libraries: scientific calculations, image processing, machine learning.
+\item Useful resources
+    \begin{enumerate}
+        \item www.codecademy.com
+        \item codingbat.com/python
+        \item projecteuler.net
+    \end{enumerate}
+\end{enumerate}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}
+\frametitle{Trees - 1}
+
+\small{
+\begin{figure}[H]
+\centering
+\Tree[ .{\textbf{Street}}  Cinema
+[ .{\textbf{School}}  {Left stair}
+  [ .{\textbf{Right stair}} {2nd floor}
+    [ .{\textbf{3rd floor}} {\textbf{Math classroom}}
+      Library {Chemical lab}
+    ]
+  ]
+]
+]
+\caption{Path from street to classroom.}
+\end{figure}
+}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}
+\frametitle{Trees - 2}
+
+Navigating the tree:
+\begin{figure}[H]
+\centering
+\Tree [ .1  [ .2 [ .4 7 ] [ .5 8 9 ] ]  [ .3 [ .6 10 ] ] ]
+\end{figure}
+
+$$1, 2, 3, 4, 5, 6, 7, 8, 9, 10 \ \ \textbf{or} \ \ 1, 2, 4, 7, 5, 8, 9, 3, 6, 10$$ 
+
+The first path is called "in breadth", the second path is "in depth".
+
+\textbf{A part of a tree is a tree}.
+\begin{figure}[H]
+\centering
+\Tree [ .2 [ .4 7 ] [ .5 8 9 ] ]
+\end{figure}
+
+\end{frame}
+
+\end{document}
