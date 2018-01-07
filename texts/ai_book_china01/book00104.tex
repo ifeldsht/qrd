@@ -1,1 +1,112 @@
 \chapter{Multi-player games}
+
+In this chapter we'll consider decision-making in a multi-palyer
+games -- the case when the state of a game can change unpredictably
+due to a move of a counterparty. Games like Chess, Checkers, Go
+are all good examples of two-player games. Building a computer
+program that can play these games is difficult, but ideas behind
+several approaches can be studied on a game as simple as Tic-Tac-Toe.
+
+\section{Tic-Tac-Toe -- the game}
+
+Two players make moves on a 3x3 board. They start with an empty board
+
+\begin{center}
+\begin{tabular}{ l | c | r }
+     &  &  \\ \hline
+     &  &  \\ \hline
+     &  &  \\
+  \end{tabular}
+\end{center}
+First player puts X in a free space,
+the second player puts O. The player who first puts 3 symbols in a row is
+the winner. Examples of winning positions:
+
+\begin{center}
+\begin{tabular}{ l | c | r }
+    X & O & O \\ \hline
+     & X &  \\ \hline
+     &  & X  \\
+  \end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{ l | c | r }
+    X &  & X \\ \hline
+    O & O & O \\ \hline
+      & X & X  \\
+  \end{tabular}
+\end{center}
+
+There may be conditions when the board is full and there is no winner (draw):
+
+\begin{center}
+\begin{tabular}{ l | c | r }
+    X & O & X \\ \hline
+    O & X & O \\ \hline
+    O & X & X  \\
+  \end{tabular}
+\end{center}
+
+
+We'll be describing the position on the board by the list of 9 symbols:
+"X", "O", or "\ " (empty space). For example, three positions above will be
+["X", "O", "O", "\ ", "X", "\ ", "\ ", "\ ", "X"],
+["X", " ", "X", "O", "O", "O", "\ ", "X", "X"], and
+["X", "O", "X", "O", "X", "O", "O", "X", "X"].
+
+\\\\\\
+\textbf{Python:} to continue you need to learn elements of
+object-oriented programming -- classes in Python, constructors, member
+functions and variables.
+\\\\\\
+
+There are several approaches to building a computer program that can
+play Tic-Tac-Toe or other similar two-player games:
+
+\begin{enumerate}
+\item We can hard-code some strategy -- a set of rules the program
+applies to choose next step. For example, two obvious rules are:
+"\textbf{win}: if you have two symbols in a row and
+can put the third symbol, do and win",
+"\textbf{don't let win}: if on the next step your competitor
+can win by putting third symbol, prevent this".
+It can be shown that Tic-Tac-Toe has a winning strategy.
+\item The first approach is hard to generalize -- it's close to impossible
+to apply it to a game
+just a little more complex than Tic-Tac-Toe. We can introduce
+a general way of choosing next move that increases the chances of
+a win -- so called minimax approach.
+\item We'll find that minimax may require a lot of resources to evaluate
+a move and the next approach will be the reinforcement learning
+(Q-learning) to construct an evaluation function. The program
+will first play with itself for some time and will eventually build a
+model that can play against a human or other program.
+\end{enumerate}
+
+Let's start with a simple rule-based strategy -- we'll
+implement two rules we've mentioned above (win and don't let win)
+and for all other cases the program will be doing a random move.
+We'll leave the devlopment of a stronger rule-based strategy for
+the challenge in the end of the chapter.
+
+We have to preapre several service elements:
+
+\begin{enumetrate}
+\item The class that implements the board and board-related functions.
+\item Two calsses that implement a computer player and a human player.
+Computer player is making a move based on one or the other algorithm, and
+the human player enters moves from the console.
+\item The class that implements the game -- the order of operations,
+position evaluation, etc.
+\end{enumerate}
+
+All those entities -- boarad, players, game -- have own data and functionality
+and it's convenient to organize it as class member variables and functions.
+
+\subsection{The board}
+
+
+
+
+
