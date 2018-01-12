@@ -66,7 +66,7 @@ if __name__=="__main__":
     index = 0
     epoch = 0    
 
-    num_steps = 100000000
+    num_steps = 300000000
     with tf.Session(graph=graph) as session:
         tf.global_variables_initializer().run()
         total_loss = 0

@@ -5,19 +5,12 @@ wv = KeyedVectors.load_word2vec_format(sys.argv[1], binary=False)
 
 print wv.most_similar(positive=['woman', 'king'], negative=['man'])
 
-print wv.similarity('woman', 'man')
+#print wv.similarity('woman', 'man')
 
-print wv.evaluate_word_pairs("tests/wordsim353.low.tsv")
+#print wv.evaluate_word_pairs("tests/wordsim353.low.tsv")
 
 acc = wv.accuracy("tests/google_questions_words.low.txt",restrict_vocab=50000)
 for a in acc: print a["section"], len(a["correct"]), len(a["incorrect"])
-
-#with open("tests/wordsim353.low.tsv","r")  as f:
-#    d = f.read().split("\n")
-#    for x in d:
-#        ws = x.split("\t")
-#        if ws[0] not in wv: print ws[0]
-#        if ws[1] not in wv: print ws[1]
 
 with open("tests/google_questions_words.low.txt","r") as f:
     questions = f.read().split("\n")
@@ -43,8 +36,11 @@ for q in questions:
             break
         counter += 1
 
+tot4 = 0
 for a in acc:
+    tot4 += sum(acc[a][:4])
     print a, sum(acc[a])
     print acc[a]    
 
+print tot4
 
