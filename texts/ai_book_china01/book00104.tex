@@ -87,24 +87,202 @@ model that can play against a human or other program.
 Let's start with a simple rule-based strategy -- we'll
 implement two rules we've mentioned above (win and don't let win)
 and for all other cases the program will be doing a random move.
-We'll leave the devlopment of a stronger rule-based strategy for
+We'll leave the development of a stronger rule-based strategy for
 the challenge in the end of the chapter.
 
-We have to preapre several service elements:
+We have to prepare several service elements:
 
 \begin{enumerate}
 \item The class that implements the board and board-related functions.
-\item Two calsses that implement a computer player and a human player.
+\item Two classes that implement a computer player and a human player.
 Computer player is making a move based on one or the other algorithm, and
 the human player enters moves from the console.
 \item The class that implements the game -- the order of operations,
 position evaluation, etc.
 \end{enumerate}
 
-All those entities -- boarad, players, game -- have own data and functionality
+All those entities -- board, players, game -- have own data and functionality
 and it's convenient to organize it as class member variables and functions.
 
 \subsection{The board}
+
+Let's first review the functionality related to the board and
+not related to player's decisions, to the order of players moves, etc.
+Any implementation of the board has to be able to do the following:
+
+\begin{enumerate}
+\item Initialize the empty board.
+\item Check if the board is filled -- no moves available, or there is a winner
+\item Check if a player is a winner.
+\item Change its own state on move.
+\item Find all possible moves (indices of all empty cells).
+\item Return human-readable representation.
+\end{enumerate}
+
+Here is the implementation:
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Tic-Tac-Toe: board}]
+class board:
+    def __init__(self):
+        self.empty = " "
+        self.buffer = [self.empty] * 9
+
+    def filled(self):
+        return len([x for x in self.buffer if x is self.empty])==0 \
+               or self.winner("X") or self.winner("O")
+
+    def winner(self,p):
+        winning_lines = [[0,1,2],[3,4,5],[6,7,8],
+                         [0,3,6],[1,4,7],[2,5,8],
+                         [0,4,8],[2,4,6]]
+        for line in winning_lines:
+            if self.buffer[line[0]] == p and \
+               self.buffer[line[1]] == p and \
+               self.buffer[line[2]] == p:
+                return True
+        return False
+
+    def on_move(self,move,symbol):
+        self.buffer[move] = symbol
+
+    def moves(self):
+        return [c[0] for c in enumerate(self.buffer) if c[1] is self.empty]
+
+    def __repr__(self):
+        return "{}|{}|{}\n-----\n{}|{}|{}\n-----\n{}|{}|{}".format(*self.buffer)
+\end{lstlisting}
+
+\textbf{\_\_init\_\_} initializes buffer of 9 symbols of empty space.
+
+\textbf{filled} checks number of empty spaces and winners.
+
+\textbf{winner} checks if symbol \textbf{p} is the winer.
+
+\textbf{on\_move} updates the buffer -- writes the symbol of the move
+to the move position.
+
+\textbf{moves} returns indices of empty spaces. Function \textbf{enumerate}
+returns enumerated list, for example \textbf{enumerate(["a","b"])} returns
+\textbf{[(0,"a"),(1,"b")]}.
+
+And last function returns text representation of a board.
+
+\begin{tcolorbox}
+\textbf{Assignment:} change the function \textbf{winner} -- do not use
+hard-coded winning lines.
+\end{tcolorbox}
+
+\subsection{Players}
+
+Next elements of the game are two players -- player-computer and
+player-human. The former has to make moves based on some algorithm,
+the latter is accepting moves from a human player. Let's assume
+the computer always makes first move.
+
+The base class:
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Tic-Tac-Toe: player, base class}]
+class player:
+    def __init__(self,symbol):
+        self.symbol = symbol
+
+    def move(self,board):
+        pass
+\end{lstlisting}
+We need only two functions -- initialization (assigning a symbol)
+and making a move (doesn't do anything in the base class).
+
+Two derived classes:
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Tic-Tac-Toe: player-computer}]
+class computer(player):
+    def __init__(self):
+        player.__init__(self,"X")
+
+    def move(self,board):
+        options = board.moves()
+        return options[randint(0,len(options)-1)]
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Tic-Tac-Toe: player accepting moves from a human}]
+class human(player):
+    def __init__(self):
+        player.__init__(self,"O")
+    
+    def move(self,board):
+        print board
+        i = int(input(">"))
+        if i not in board.moves(): return self.board.move(board)
+        return i
+\end{lstlisting}
+
+Initialization functions specify symbols.
+
+Computer player makes move randomly -- first it takes all
+available moves for the board and returns the value at a random index.
+
+\textbf{move} function for a human player first prints the board and then
+waits for the human input. If the input is not in the list of available
+moves it calls itself to re-request the input from the player.
+
+\subsection{The game}
+
+And finally let's consider the implementation of the game.
+We'll need several functions:
+\begin{enumerate}
+\item Initialization -- creating an empty board, and initializing players.
+\item After each move we need to switch players.
+\item Functions that control the game -- taking a move from a player
+and updating the state of the game until the board is filled.
+\item In the end of the game we want to show the final state.
+\end{enumerate}
+
+Here is the code:
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Tic-Tac-Toe: the game}]
+class TTTRandom:
+    def __init__(self,player1,player2):
+        self.player1 = player1
+        self.player2 = player2
+        self.board = board()
+
+    def switch(self):
+        # using a,b=b,a to exchange two variables
+        self.player1, self.player2 = self.player2, self.player1
+
+    def play(self):
+        while not self.board.filled():
+            move = self.player1.move(self.board)
+            self.on_move(move)
+
+    def on_move(self,move):
+        self.board.on_move(move,self.player1.symbol)
+        if self.board.filled():
+            self.done()
+        else:
+            self.switch()
+
+    def done(self):
+        print "Done:"
+        print self.board
+\end{lstlisting}
+Review the code and confirm that it implements all elements listed above.
+
+And this is the code to play the game:
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Tic-Tac-Toe: playing the game}]
+p1 = computer()
+p2 = human()
+game = TTTRandom(p1,p2)
+game.play()
+\end{lstlisting}
+
+\textbf{Assignments:}
+\begin{enumerate}
+\item Combine the code for the board, players, and the game. Play the game.
+\item Change \textbf{move} function to support "win and don't let win"
+strategy.
+\end{enumerate}
 
 
 

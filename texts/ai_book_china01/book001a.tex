@@ -705,6 +705,176 @@ and (0.58,0.68).
 For purposes of this course we don't need other types of 
 distributions and other functions from the module.
 
+\section{Classes}
+
+Object-oriented programming (OOP) is one of the most powerful
+and widely used programming concepts. Python supports OOP and
+its core element -- the notion of classes. For purposes of this
+course we'll consider just basic ideas without covering all
+aspects of the concept. \footnote{
+If you are familiar with OOP in other languages (similar to C++)
+you'll find that implementation of classes in Python
+assumes members (variables and functions) are public,
+and functions are virtual.}
+
+The idea of a class is to keep data and related functionality
+together. Your program may work with objects described
+by object-specific data -- for example, geometrical figures,
+bank accounts, game boards, etc. Geometrical figures may be
+given by a center and radius (circle) or by several sizes
+(triangle, rectangle) or by position of corners (arbitrary
+polygon). Bank account keeps information about the owner
+(name, address, email, phone number), balance, transactions, etc.
+
+When developing a program that works with multiple geometrical
+figures we may need each figure to have a common interface
+functions -- for example, the function that that returns a
+position of a geometrical center, or a function that returns True
+if a point is inside the figure and False otherwise. Those functions
+are different for different geometrical figures and it's convenient
+to isolate this functionality -- the program only "knows" that
+each geometrical figure has functions \textbf{center()} and
+\textbf{is\_inside(point)}.
+
+To do this we first declare a base class common for all figures
+and implementing common functionality:
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: base class}]
+class figure(object):
+    def __init__(self,name):
+        self.name = name
+
+    def center(self):
+        pass
+
+    def is_inside(self,point):
+        pass
+
+    def __repr__(self):
+        return self.name
+\end{lstlisting}
+Let's go line by line:
+
+\textbf{class figure(object):}
+
+We've declared new class \textbf{figure} extending the base class
+\textbf{object}. Object is the base class for almost everything in Python
+ -- integers, lists, strings, etc. are all objects. What it means --
+each derived class keeps (inherits) the functionality implemented
+in the base class.
+
+\textbf{ def \_\_init\_\_(self,name):}
+
+Function \textbf{\_\_init\_\_} is called each time we create new object.
+All member functions\footnote{except static functions not covered here} have
+first parameter \textbf{self} -- the reference to the constructed object.
+\textbf{\_\_init\_\_} may have other parameters to initialize member variables.
+Here the parameter is \textbf{name} -- the name of the figure. Base class
+doesn't know anything else -- all other details will be implemented in
+classes derived from \textbf{figure}.
+
+\textbf{self.name = name}
+
+This line initializes member variable \textbf{self.name}. If we have an
+instance of this class \textbf{f} the variable \textbf{name} can be
+accessed as \textbf{f.name}.
+Inside the class definition the first
+part of this expression (the reference to the object) is \textbf{self}
+and the variable is accessed as \textbf{self.name}.
+
+Next we declare two function -- \textbf{center} and \textbf{is\_inside}.
+We are using \textbf{pass} statement
+to do nothing in the base class.
+
+\textbf{def \_\_repr\_\_(self):}
+
+Function \textbf{\_\_repr\_\_} returns a string representation of the
+object. It's called each time we print something -- Python statement
+\textbf{print x} prints the string returned by \textbf{x.\_\_repr\_\_()}.
+For the base class this function returns the name of the figure.
+
+
+Now we want to implement a rectangle. For demonstration purposes
+we'll assume the corners at points $(0,0), (w,0), (0,h), (w,h)$ --
+we need only two numbers to describe any rectangle -- width \textbf{w}
+and height \textbf{h}.
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: derived class (rectangle)}]
+class rectangle(figure):
+    def __init__(self,w,h):
+        figure.__init__(self,"rectangle")
+        self.w = w
+        self.h = h
+
+    def center(self):
+        return (self.w/2,self.h/2)
+
+    def is_center(self,point):
+        return point[0]>0 and point[0]<w and point[1]>0 and point[1]<h
+
+    def __repr__(self):
+        return "{}, width={}, height={}".format(self.name,self.w,self.h)
+\end{lstlisting}
+Note that \textbf{\_\_init\_\_} function now has different
+parameters. In the beginning it calls the corresponding function
+of the base class \textbf{figure}. In this case the initialization
+is trivial, but in more complicated cases the reuse may be
+extremely helpful. \textbf{\_\_repr\_\_} returns the string with
+name and parameters.
+
+Here is the class implementing the same functions for circle given
+by radius \textbf{r} and the position of center \textbf{c}:
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: derived class (circle)}]
+class circle(figure):
+    def __init__(self,r,c):
+        figure.__init__(self,"circle")
+        self.r = r
+        self.c = c
+
+    def center(self):
+        return self.c
+
+    def is_center(self,point):
+        return (point[0]-self.c[0])*(point[0]-self.c[0])+\
+               (point[1]-self.c[1])*(point[1]-self.c[1]) < self.r*self.r
+
+    def __repr__(self):
+        return "{}, radius={}, center={}".format(self.name,self.w,self.h)
+\end{lstlisting}
+Now let's learn how to use these classes:
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: using classes}]
+fig = figure("unknown figure")
+rect = rectangle(2.0,1.0)
+circ = circle(3.0, (1.0,4.0))
+
+print type(fig), fig
+print fig.ceneter(), fig.is_inside((0.0,0.0))
+print type(rect), rect
+print rect.ceneter(), rect.is_inside((0.5,1.2))
+print type(circ), circ
+print circ.ceneter(), circ.is_inside((2.0,4.0))
+\end{lstlisting}
+We first created three objects -- basic figure, rectangle and circle and then
+called corresponding functions. The same can be done in a loop:
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: using classes - 2}]
+L = []
+L.append( figure("unknown figure") )
+L.append( rectangle(2.0,1.0) )
+L.append( circle(3.0, (1.0,4.0)) )
+
+for f in L:
+    print type(f), f
+    print f.ceneter(), f.is_inside((0.5,1.0))
+\end{lstlisting}
+
+This section doesn't cover all aspects of classes in Python, it
+considers only very basic elements needed for the development.
+
+
+
 \section{Coding problems}
 
 The best way to build practical skills in programming is to do
