@@ -285,6 +285,155 @@ strategy.
 \end{enumerate}
 
 
+\section{Tic-Tac-Toe, minimax approach}
 
+As we can see implementing rule-based strategy can be a problem
+even for simple games like Tic-Tac-Toe. Small size of the board
+simplifies development, but any changes in rules or in size
+would require starting from scratch. At the same time the number
+of possible moves is finite and we can try to review all possibilities
+and to choose winning moves. The number of possibilities can be
+huge for games like Chess, but for Tic-Tac-Toe we can consider
+all possibilities and build an optimal player.
+
+The problem with the development is that we don't know how an
+opponent moves - the opponent may follow the strategy we don't know
+in advance. To address the issue we must assume that both
+players move optimally trying to maximize the reward.
+
+Consider the following example.
+
+\begin{figure}[H]
+\centering
+\Tree[ .Start [ .2  5 6 ] [ .4 1 10 ] ]
+\end{figure}
+
+This is the tree of the game. First player makes first move
+(from \textbf{Start} to \textbf{2} or \textbf{4}), then the second
+player makes a move. Numbers associated with graph nodes are rewards.
+
+Two players play against each other. First player is trying to maximize
+the final reward - the reward in the end of the game after the second
+move. First player is a \textbf{maximizer}. Second player
+is minimizer and is trying to minimize the final reward.
+
+Let's see what can be a sequence of moves:
+
+\begin{enumerate}
+\item First player moves to \textbf{4}. In this case the second player will
+choose \textbf{1} as it's the minimum.
+\item First player moves to \textbf{2}. The second player will choose \textbf{5}.
+\end{enumerate}
+
+Assuming that the second player chooses optimally the first player should
+move to \textbf{2} -- the final reward in this case is \textbf{5} compared
+to \textbf{1} in the other case. The assumption of optimal player is
+crucial here -- for example the second player choosing randomly may choose
+\textbf{10}.
+
+The idea of the approach can be expressed in the following way:
+\textbf{a player must choose a move that minimizes the maximum
+reward of an opponent}. Remember that we have players of two types --
+minimizers and maximizers. A minimizer reads the rule as
+\textbf{a move that maximizes the minimum reward of an opponent}.
+
+For games like Tic-Tac-Toe the reward is known only in the end of the
+game -- a player either wins or looses or the game ends with draw.
+First player (X) is a maximizer and in the case it wins the reward
+is +1. The second player is a minimizer and the reward is -1. Reward
+at a draw is 0.
+
+To apply this approach to Tic-Tac-Toe we need to construct a computer
+player that analyzes the game tree (all possible moves) and each time
+chooses the best \textbf{minimax} move. Each move creates a new position
+on the board until the game is over. We can use recursion to
+build the game tree and analyze results of a move.
+
+The Python code is similar to the code we developed in the previous section,
+but we need to make several changes:
+
+\begin{enumerate}
+\item class \textbf{board} needs a function that returns reward
+depending on the state of the board.
+\item class \textbf{computer} needs an implementation of \textbf{minimax}
+function and changes in \textbf{move} function.
+\end{enumerate}
+
+Here is the code:
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Tic-Tac-Toe: the board, reward function}]
+class board:
+
+    ...
+
+    def reward(self):
+        if self.winner("X"): return 1.0
+        if self.winner("O"): return -1.0
+        return 0.0
+
+    ...
+\end{lstlisting}
+The function returns non-zero reward depending on the winner (X or O)
+and zero in all other cases.
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Tic-Tac-Toe: minimax computer player}]
+class computer(player):
+
+    ...
+
+    def minimax(self,board,maximizing):
+        score = board.reward()
+        if score != 0: return score
+        if board.filled(): return 0
+        if maximizing:
+            best = -10000.0
+            for m in board.moves():
+                m_board = deepcopy(board)
+                m_board.on_move(m,"X")
+                best = max(best,self.minimax(m_board,not maximizing))
+        else:
+            best = 10000.0
+            for m in board.moves():
+                m_board = deepcopy(board)
+                m_board.on_move(m,"O")
+                best = min(best,self.minimax(m_board,not maximizing))
+        return best
+\end{lstlisting}
+The function takes three parameters: \textbf{self} as 
+any member function, \textbf{board} -- the same as in the previous
+section, and \textbf{maximizing} -- boolean flag indicating a
+maximizer or minimizer.
+
+First we are getting the current reward
+from the board. If the reward (\textbf{score}) is +1 or -1 (non-zero)
+the function returns the value. 
+If the score is 0 and the board is filled (draw) the function returns 0.
+In all other cases we have moves to make. Each move returns new
+score and we are choosing the best score. The notion of the best depends on
+the \textbf{maximizing} flag -- it is \textbf{max} for a maximizer
+and \textbf{min} for a minimizer.
+Note that we are altering
+\textbf{maximizing} flag -- if current player is a maximizer the next move
+makes a minimizer and vice versa -- when calling \textbf{self.minimax}
+recursively we are using \textbf{not maximizing} expression.
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Tic-Tac-Toe: computer player, move funtion}]
+class computer(player):
+
+    ...
+
+    def move(self,board):
+        moves = board.moves()
+        mm = []
+        for m in moves:
+            m_board = deepcopy(board)
+            m_board.on_move(m,self.symbol)
+            mm.append( self.minimax(m_board,False) )
+        mm_index = mm.index(max(mm))
+        return moves[mm_index]
+
+    ...
+
+\end{lstlisting}
 
 
