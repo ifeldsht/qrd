@@ -121,6 +121,24 @@ Any implementation of the board has to be able to do the following:
 
 Here is the implementation:
 
+\textbf{\_\_init\_\_} initializes buffer of 9 symbols of empty space.
+
+\textbf{filled} checks number of empty spaces and winners.
+
+\textbf{winner} checks if symbol \textbf{p} is the winer.
+
+\textbf{on\_move} updates the buffer -- writes the symbol of the move
+to the move position.
+
+\textbf{moves} returns indices of empty spaces. Function \textbf{enumerate}
+returns enumerated list, for example \textbf{enumerate(["a","b"])} returns
+\textbf{[(0,"a"),(1,"b")]}.
+
+And last function returns text representation of a board.
+
+%%%
+\newpage
+
 \begin{lstlisting}[language=Python,style=codelst2,caption={Tic-Tac-Toe: board}]
 class board:
     def __init__(self):
@@ -128,7 +146,8 @@ class board:
         self.buffer = [self.empty] * 9
 
     def filled(self):
-        return len([x for x in self.buffer if x is self.empty])==0 \
+        return len([x for x in self.buffer  \
+                    if x is self.empty])==0 \
                or self.winner("X") or self.winner("O")
 
     def winner(self,p):
@@ -146,26 +165,13 @@ class board:
         self.buffer[move] = symbol
 
     def moves(self):
-        return [c[0] for c in enumerate(self.buffer) if c[1] is self.empty]
+        return [c[0] for c in enumerate(self.buffer)\
+                if c[1] is self.empty]
 
     def __repr__(self):
-        return "{}|{}|{}\n-----\n{}|{}|{}\n-----\n{}|{}|{}".format(*self.buffer)
+        return "{}|{}|{}\n-----\n{}|{}|{}\n-----\n{}|{}|{}".\
+               format(*self.buffer)
 \end{lstlisting}
-
-\textbf{\_\_init\_\_} initializes buffer of 9 symbols of empty space.
-
-\textbf{filled} checks number of empty spaces and winners.
-
-\textbf{winner} checks if symbol \textbf{p} is the winer.
-
-\textbf{on\_move} updates the buffer -- writes the symbol of the move
-to the move position.
-
-\textbf{moves} returns indices of empty spaces. Function \textbf{enumerate}
-returns enumerated list, for example \textbf{enumerate(["a","b"])} returns
-\textbf{[(0,"a"),(1,"b")]}.
-
-And last function returns text representation of a board.
 
 \begin{tcolorbox}
 \textbf{Assignment:} change the function \textbf{winner} -- do not use
@@ -212,7 +218,8 @@ class human(player):
     def move(self,board):
         print board
         i = int(input(">"))
-        if i not in board.moves(): return self.board.move(board)
+        if i not in board.moves(): 
+            return self.board.move(board)
         return i
 \end{lstlisting}
 
@@ -247,14 +254,16 @@ class TTTRandom:
         self.board = board()
 
     def switch(self):
-        # using a,b=b,a to exchange two variables
-        self.player1, self.player2 = self.player2, self.player1
+        # using a,b=b,a to swap two variables
+        self.player1,self.player2=self.player2,self.player1
 
     def play(self):
         while not self.board.filled():
             move = self.player1.move(self.board)
             self.on_move(move)
+\end{lstlisting}
 
+\begin{lstlisting}[language=Python,style=codelst2,caption={Tic-Tac-Toe: the game - continued}]
     def on_move(self,move):
         self.board.on_move(move,self.player1.symbol)
         if self.board.filled():
@@ -277,12 +286,14 @@ game = TTTRandom(p1,p2)
 game.play()
 \end{lstlisting}
 
+\begin{tcolorbox}
 \textbf{Assignments:}
 \begin{enumerate}
 \item Combine the code for the board, players, and the game. Play the game.
 \item Change \textbf{move} function to support "win and don't let win"
 strategy.
 \end{enumerate}
+\end{tcolorbox}
 
 
 \section{Tic-Tac-Toe, minimax approach}
@@ -363,46 +374,21 @@ Here is the code:
 
 \begin{lstlisting}[language=Python,style=codelst2,caption={Tic-Tac-Toe: the board, reward function}]
 class board:
-
     ...
-
     def reward(self):
         if self.winner("X"): return 1.0
         if self.winner("O"): return -1.0
         return 0.0
-
     ...
 \end{lstlisting}
 The function returns non-zero reward depending on the winner (X or O)
 and zero in all other cases.
 
-\begin{lstlisting}[language=Python,style=codelst2,caption={Tic-Tac-Toe: minimax computer player}]
-class computer(player):
-
-    ...
-
-    def minimax(self,board,maximizing):
-        score = board.reward()
-        if score != 0: return score
-        if board.filled(): return 0
-        if maximizing:
-            best = -10000.0
-            for m in board.moves():
-                m_board = deepcopy(board)
-                m_board.on_move(m,"X")
-                best = max(best,self.minimax(m_board,not maximizing))
-        else:
-            best = 10000.0
-            for m in board.moves():
-                m_board = deepcopy(board)
-                m_board.on_move(m,"O")
-                best = min(best,self.minimax(m_board,not maximizing))
-        return best
-\end{lstlisting}
 The function takes three parameters: \textbf{self} as 
 any member function, \textbf{board} -- the same as in the previous
 section, and \textbf{maximizing} -- boolean flag indicating a
-maximizer or minimizer.
+maximizer or minimizer (\textbf{True} for maximizer, 
+\textbf{False} for minimizer).
 
 First we are getting the current reward
 from the board. If the reward (\textbf{score}) is +1 or -1 (non-zero)
@@ -414,14 +400,41 @@ the \textbf{maximizing} flag -- it is \textbf{max} for a maximizer
 and \textbf{min} for a minimizer.
 Note that we are altering
 \textbf{maximizing} flag -- if current player is a maximizer the next move
-makes a minimizer and vice versa -- when calling \textbf{self.minimax}
-recursively we are using \textbf{not maximizing} expression.
+makes a minimizer and vice versa. When calling \textbf{self.minimax}
+recursively we are using \textbf{not maximizing} expression to change
+the type of player.
 
+%%%
+\newpage
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Tic-Tac-Toe: minimax computer player}]
+class computer(player):
+    ...
+    def minimax(self,board,maximizing):
+        score = board.reward()
+        if score != 0: return score
+        if board.filled(): return 0
+        if maximizing:
+            best = -10000.0
+            for m in board.moves():
+                m_board = deepcopy(board)
+                m_board.on_move(m,"X")
+                best = max(best,\
+                        self.minimax(m_board,not maximizing))
+        else:
+            best = 10000.0
+            for m in board.moves():
+                m_board = deepcopy(board)
+                m_board.on_move(m,"O")
+                best = min(best,\
+                        self.minimax(m_board,not maximizing))
+        return best
+\end{lstlisting}
+
+And the move function:
 \begin{lstlisting}[language=Python,style=codelst2,caption={Tic-Tac-Toe: computer player, move funtion}]
 class computer(player):
-
     ...
-
     def move(self,board):
         moves = board.moves()
         mm = []
@@ -431,9 +444,258 @@ class computer(player):
             mm.append( self.minimax(m_board,False) )
         mm_index = mm.index(max(mm))
         return moves[mm_index]
-
     ...
-
 \end{lstlisting}
+The list \textbf{mm} consists of minimax values of each possible
+move. Note and the call of \textbf{self.minimax} is for minimizer --
+the flag provided to the function is \textbf{False}. This is because
+the computer player is a maximizer and the next move, is for minimizer.
+
+The function creates a list of all minimax values and returns the move
+that correspond to the maximum of minimax. If the same minimax value 
+appears more than one time the function returns the first move 
+associated with the value. 
+
+
+\begin{tcolorbox}
+\textbf{Assignments:}
+Adjust the code from the previous section to incorporate changes
+for the board and computer player. Play the game. You may find that
+the first move takes time, that is expected and we'll address this
+problem in the next section.
+\end{tcolorbox}
+
+The approach doesn't distinguish between cases when the player can
+win in one or five moves. You may find that sometimes the computer
+will not choose the quickest possible strategy. The reward is always 
+the same -- +1 (or -1) -- and doesn't depend on the number of moves.
+We can address this issue by penalizing moves. 
+
+The recursive call
+of \textbf{minimax} function can be changed by adding the depth of
+recursion as a parameter. Consider as an example function that
+returns factorial of a number:
+
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Factorial calculations}]
+def factorial(n):
+    if n <= 1: return 1
+    return n * factorial(n-1)
+\end{lstlisting}
+We can add depth in the following way:
+\begin{lstlisting}[language=Python,style=codelst2,caption={Factorial calculations with depth printing}]
+def factorial(n,depth):
+    print depth
+    if n <= 1: return 1
+    return n * factorial(n-1,depth+1)
+\end{lstlisting}
+Try to call this function as \textbf{factorial(5,0)} -- it will
+return $5!$ (120) and will print the depth of each 
+function call starting from 0.
+
+The depth is the number of function calls. In the case of \textbf{minimax}
+function the depth is the number of moves -- each call corresponds to a
+move. One way to take into account the number of steps is to reduce 
+the reward by the number of steps. Now the reward of the maximizer is $+1$.
+You can change the reward to $10$ and subtract the depth:
+
+%%%
+\newpage
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Tic-Tac-Toe: taking into accout the number of steps}]
+def minimax(self,board,maximizing,depth):
+   ...
+        best = max(best,self.minimax(m_board,not maximizing,depth+1))
+   ...
+   return best - depth
+\end{lstlisting}
+In this case the winning strategy that requires the least number of moves 
+will be prioritized. 
+
+\begin{tcolorbox}
+\textbf{Assignment:} change the code of \textbf{minimax} function to
+take into account the number of moves as discussed above.
+\end{tcolorbox}
+
+
+\section{Tic-Tac-Toe: Q-learning}
+
+This section introduces an advanced topic of
+Reinforcement Learning -- the technique in one or the other
+form used in a wide range of applications from developing
+an invincible chess program to teaching a robot to perform
+back flip.
+
+Tic-Tac-Toe is a game with small number of possible moves
+and short horizon -- the game ends not later than in 9 moves.
+This simplifies the development of learning algorithm.
+The method we'll be using is called Q-learning and it's
+rooted in Bellman's Principle of Optimality. If we have an
+optimal sequence of decisions -- for example winning moves
+in Tic-Tc-Toe -- then at each moment the remaining part of
+the sequence is also optimal. If the sequence of moves
+${m_1, m_2, \dots m_N}$ is an optimal one, then
+the sequence ${m_i, m_{i+1}}, \dots m_N$ is also optimal
+starting from any moment $i$. In other words, the optimal sequence doesn't
+depend on previous steps.
+
+Let's consider the sequence of actions (moves) ${a_i}$ and associated
+sequence of states ${s_i}$. States are results of actions --
+for Tic-Tac-Toe states are boards after a sequence of moves
+and each new move changes the board:
+$$
+s_i \xrightarrow[a_i]{} s_{i+1}
+$$
+Each state $s_i$ is associated with a reward $r_i$. For Tic-Tac-Toe,
+the reward is zero for all states except winning positions.
+
+We want to find an approach (often called a policy $\pi$) that
+maps all possible states $S$ to all actions $A$
+$$
+\pi: S \rightarrow A
+$$
+This policy gives us an action for a state. Our goal is to
+create a policy that maximizes future rewards -- maximizes
+our chances to win in a game.
+
+Let's introduce future rewards $V$ as a sum of all rewards
+associated with future states:
+$$
+V(s_i) = r_i + r_{i+1} + r_{i+1} + \dots
+$$
+More common is to discount future rewards:
+$$
+V(s_i) = r_i + \gamma \cdot r_{i+1} + \gamma^2 \cdot r_{i+2} + \dots
+$$
+where $\gamma$ is a number from 0 to 1, normally closer to 1.
+$V$ depends on the policy $\pi$. We denote $V^{*}$ the
+maximum possible future reward.
+
+For the state $s$ action $a$ creates new state $s'$:
+$$
+s \xrightarrow[a]{} s'
+$$
+Let's introduce function $Q(s,a)$:
+$$
+Q(s,a) = r(s,a) + \gamma\cdot V^{*}(s')
+$$
+The function $Q$ is the sum of the current reward plus
+discounted maximum future reward.
+Taking into account that 
+$$V^{*}(s') = \max_{a'}Q(s',a')$$
+we can write:
+$$
+Q(a,a) = r(a,a) + \gamma\cdot\max_{a'}Q(s',a')
+$$
+This gives us recursive definition of $Q$.
+
+We can use this definition to find an approximation for $Q$.
+We'll start with some approximation $Q_1$ -- for example
+$Q = 1$ for all states and actions.
+If we are lucky and $Q_1$ is the exact solution
+we'll have
+$$
+Q_1(a,a) = r(a,a) + \gamma\cdot\max_{a'}Q_1(s',a')
+$$
+But most probably the difference between right-hand side
+and left-hand side of the equation is not zero:
+$$
+\Delta Q_1 = r(s,a) + \gamma\cdot\max_{a'}Q_1(s',a') - Q_1(s,a) 
+$$
+$$
+\Delta Q_1 \ne 0
+$$
+Let's update our approximation of $Q$ in the following way:
+$$
+Q_2 = Q_1 + \alpha\cdot\Delta Q_1
+$$
+Parameter $\alpha$ is a small number that controls the rate of updates.
+This gives us the next approximation and we'll find $\Delta Q_2$ and next
+approximation of Q:
+$$
+\Delta Q_2 = r(s,a) + \gamma\cdot\max_{a'}Q_2(s',a') - Q_2(s,a)
+$$
+$$
+Q_3 = Q_2 + \alpha\cdot\Delta Q_2
+$$
+Each step updates our approximation of $Q$. At the step $n$ we have we
+have next approximation $Q_{n+1}$:
+$$
+Q_{n+1}(s,a) = Q_n(s,a) + \alpha\cdot ( r(s,a) + \gamma\cdot max_{a'} Q_n(s',a') - Q_n(s,a) )
+$$
+If we run this procedure long enough we may notice that values of
+$\Delta Q$ become smaller and smaller -- the process converges to some
+$Q$\footnote{The question of convergence of this iterative procedure
+is not covered in this course.}.
+
+Let's use this approach to create (to learn) $Q$-function
+for a Tic-Tac-Toe player. The player then will be choosing the move
+that maximizes $Q$ for any given state (board).
+
+The question is how to create an iterative procedure described above.
+We can for example play against the computer and it will eventually
+learn the results of moves at various positions of the board. This
+is possible, but may take a lot of time and human efforts -- the number of
+possible moves is big even for a simple game like Tic-Tac-Toe.
+
+The alternative approach is to let computer play against itself
+to learn the $Q$-function and use resulting function to play against
+a human. We'll need to implement two modes of operation in the game:
+learning and playing. During the learning two computer players
+share the same $Q$-function, choose the best moves, and update
+$Q$-function according to the resulting rewards. We can let them
+play hundreds of thousands times to learn $Q$-function. To let
+the player explore new positions we'll be doing random moves as well.
+When playing against a human the computer player will be using
+learned $Q$-function to choose the best moves.
+
+The scheme described above requires several changes in the code
+of Tic-Tac-Toe game.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section{Challenge}
+
+In this chapter we've learned how to develop three types of
+Tic-Tac-Toe players using rule-based approach, minimax, and Q-learning.
+The challenge now is to compare them between each other and their
+implementations by groups of students.
+
+\begin{enumerate}
+\item Implement rule-based Tic-Tac-Toe player. You already have the version
+for "win, don't let win" strategy. Expand it by adding new rules -- use
+your experience to come up with winning strategy.
+Make the code reusable, so that computer players developed by
+groups of students can compete.
+\item Implement the game where rule-based player plays against
+ minimax player.
+\item Implement the game where the minimax player plays against 
+Q-function player.
+\item Experiment with parameters used to create Q-function (number of
+games, $\gamma, \alpha, \epsilon$). Implement the game where two players
+with different $Q$-functions play against each other.
+\end{enumerate}
+
+
+
+
+
+
+
 
 
