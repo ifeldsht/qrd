@@ -652,21 +652,258 @@ learned $Q$-function to choose the best moves.
 The scheme described above requires several changes in the code
 of Tic-Tac-Toe game.
 
+The changes will affect all elements. Important addition is the variable
+\textbf{Q} -- the mapping from the state to all possible moves and rewards
+associated with those moves. \textbf{Q} is introduced as a dictionary where
+keys are states and values are maps (dictionaries) from moves to rewards.
+
+The board needs a function that returns the state of the board --
+the buffer and the symbol of the active player:
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Tic-Tac-Toe: Q-learning, board}]
+class board:
+    ...
+    def state(self,Q,symbol):
+        state = "".join(self.buffer) + symbol
+        if state not in Q:
+            Q[state] = {m:1.0 for m in self.moves()}
+        return state
+    ...
+\end{lstlisting}
+The variable \textbf{state} is constructed as a string representing the buffer
+with symbol of an active player added to the end.
+Note that adding the symbol is redundant
+as the player can be identified from the board assuming that "X" makes first move.
+Each time we find new state we need to update \textbf{Q}: we are creating
+new key and assign default ($1.0$) rewards to each available move.
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Tic-Tac-Toe: Q-learning, computer player}]
+class computer:
+    def __init__(self,symbol,Q={},eps=0.2):
+        self.symbol = symbol
+        self.Q = Q
+        self.eps = eps
+
+    def move(self,board,learning):
+        moves = board.moves()
+        if random() < self.eps and learning:
+            return moves[randint(0,len(moves)-1)]
+        state = board.state(self.Q,self.symbol)
+        qs = self.Q[state]
+        minmax = max
+        if self.symbol == "O": minmax = min
+        mm = minmax(qs.values())
+        options = [int(m) for m in qs if qs[m]==mm]
+        return options[randint(0,len(options)-1)]
+\end{lstlisting}
+
+Next change is in the implementation of computer player. Changes start from
+the initialization. Here is the new implementation:
+
+Initialization now includes assigning two new variables: \textbf{Q} and
+\textbf{eps}. \textbf{Q} is the function we want to learn. During the
+learning the function is shared between two computer players so that
+each of them can make adjustments based on results. Variable \textbf{eps}
+controls the rate at which the player is choosing a random move at learning.
+If \textbf{eps=0.2} (default value) then the player makes on average
+one fifth random moves.
+
+Function \textbf{move} also takes new parameter \textbf{learning} --
+boolean flag specifying that the player is not playing against a human,
+but learning the function \textbf{Q}.
+
+The function \textbf{move} first takes all possible moves and
+if conditions met (learning mode and random number is in expected range
+\footnote{Function \textbf{random()} returns values
+evenly distributed between 0 and 1. Thus the value below 0.2 appears
+on average one time out of five.}) it returns a random move from the
+list of all possible.
+In the other case the function takes the state and extracts the map
+from moves to expected rewards (variable \textbf{qs}).
+
+As discussed
+there are two types of players -- maximizers ("X") and minimizers ("O").
+Depending on the type we need to choose either the move that
+corresponds to the maximum reward in \textbf{qs} or to the minimum
+reward. To make the code a little more compact we are using the fact that
+functions in Python can be treated as variables: we are initializing
+\textbf{minmax} variable by assigning it \textbf(max) (and this
+is the internal Python function!) or \textbf(min) if the 
+symbol of the player is "O" (minimizer).
+
+The last step is to identify a move that corresponds to the max (or min
+for minimizer) reward value. Note that if we have more then one move with
+the same reward we'll take the first in the list.
+
+Now let's review changes in the implementation of the game.
+\textbf{TicTacToeGame} class intialization:
+
+The function \textbf{\_\_init\_\_} takes two players as parameters and
+the new variable \textbf{Q} -- the mapping that represents $Q$-function.
+By default the game starts with empty mapping -- this the case when we
+start the learning process and don't have $Q$-function. We can provide
+pre-trained \textbf{Q} to play the game against a human player.
+
+In the course of the game we'll be switching players. \textbf{self.player1}
+is always a player that makes the next step. When learning we'll be
+restarting the game and
+we need to start with the same player.
+The variable \textbf{self.starting\_symbol} is needed to distinguish two
+players after a sequence of moves.
+
+The variable \textbf{self.learning} is the flag indicating that
+we are learning the $Q$-function -- the case when computer player
+competes with the other computer player.
+
+As before we are initializing an empty board.
+
+Two new variables \textbf{self.gamma} and \textbf{self.alpha} control
+the iterative process and correspond to $\gamma, \alpha$ discussed
+above.
+
+The last part of initialization is assigning \textbf{Q} to
+computer players -- when learning they share the same function.
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Tic-Tac-Toe: Q-learning, game intialization}]
+class TicTacToeGame:
+    def __init__(self,player1,player2,Q={}):
+        self.starting_symbol = player1.symbol
+        self.player1 = player1
+        self.player2 = player2
+        self.learning = isinstance(player1,computer) and\
+                        isinstance(player2,computer)
+        self.Q = Q
+        self.board = board()
+        self.gamma = 0.9
+        self.alpha = 0.3
+        if isinstance(self.player1,computer): 
+            self.player1.Q = Q
+        if isinstance(self.player2,computer): 
+            self.player2.Q = Q
+\end{lstlisting}
+
+The function \textbf{restart} first makes sure the symbol of the
+first player corresponds to the starting symbol and switches players
+if needed. Then it initializes the new empty board.
+\begin{lstlisting}[language=Python,style=codelst2,caption={Tic-Tac-Toe: Q-learning, the game restart}]
+class TicTacToeGame:
+    ...
+    def restart(self):
+        if self.starting_symbol != self.player1.symbol:
+            self.switch()
+        self.board = board()
+    ...
+\end{lstlisting}
+
+The only addition to the \textbf{on\_move} function is learning the
+move -- first two lines.
+
+%%%
+\newpage
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Tic-Tac-Toe: Q-learning, on move}]
+class TicTacToeGame:
+    ...
+
+    def on_move(self,move):
+        if self.learning:
+            self.learn(move)
+        self.board.on_move(move,self.player1)
+        if self.board.filled():
+            self.done()
+        else:
+            self.switch()
+    ...
+\end{lstlisting}
+
+Let's look at this core function in details.
+\begin{lstlisting}[language=Python,style=codelst2,caption={Tic-Tac-Toe: Q-learning, learning a move}]
+class TicTacToeGame:
+    ...
+
+    def learn(self,move):
+        state = self.board.state(self.Q,self.player1.symbol)
+        new_board = deepcopy(self.board)
+        new_board.buffer[move] = self.player1.symbol
+        reward = new_board.reward()
+        if not new_board.filled():
+            new_state = \
+               new_board.state(self.Q,self.player2.symbol)
+            qs = self.Q[new_state]
+            if self.player1.symbol == "X":
+                reward = self.gamma*min(qs.values())
+            else:
+                reward = self.gamma*max(qs.values())
+        self.Q[state][move] += \
+               self.alpha*(reward-self.Q[state][move])
+    ...
+\end{lstlisting}
+First we construct the
+current \textbf{state} -- the board returns the string representation.
+To evaluate the move we first make a copy of the board and assign
+the symbol to the specified move (the third line of the function can be
+substituted with \textbf{new\_board.on\_move(move,self.player1)}).
+After the move we are getting the \textbf{reward}.
+
+We'll accept this reward only if the move was the last move
+(and we know the result of the game) for the board.
+Before we review what we do otherwise let's note that if
+\textbf{player1} is a maximizer (X), then after the move the state
+corresponds to the player-minimizer, and vice versa.
+
+If the board is not filled we'll need to use as a reward
+discounted value of minimum (for the player-maximizer --
+see the note above) or
+maximum (for the minimizer) \textbf{Q}
+We do this by first extracting all possible moves with
+associated rewards -- variable \textbf{qs} -- for the state of
+\textbf{new\_board}. Then we are choosing the max/min reward
+and discount it by multiplying by \textbf{self.gamma}.
+
+And the last step is to update \textbf{Q} according to the
+formula discussed in the beginning of the section.
+
+\begin{tcolorbox}
+\textbf{Python:} learn how to save Python structures
+in JSON files. 
+\end{tcolorbox}
+
+Now we need to train the model:
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Tic-Tac-Toe: Q-learning, training - computer against computer}]
+player1 = computer("X")
+player2 = computer("O")
+game = TicTacToeGame(player1,player2)
+for i in range(100000):
+    game.play()
+    game.restart()
+with open("ttt.json","w") as f:
+    json.dump(game.Q,f)
+\end{lstlisting}
+Two computer players play 100 thousand games updating the $Q$-function.
+When done the trained variable is saved for future use in JSON file.
+
+How to play:
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Tic-Tac-Toe: Q-learning, human against trained computer}]
+with open("ttt.json","r") as f:
+    Q = json.load(f)
+player1 = computer("X") 
+player2 = human("O")
+game = TicTacToeGame(player1,player2,Q)
+game.play()
+\end{lstlisting}
+We first load \textbf{Q} from the file and then provide it as a
+parameter when initializing the game -- computer player will
+be using this pre-trained function.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+\begin{tcolorbox}
+\textbf{Assignment:} combine pieces of code discussed above
+with previous implementations of Tic-Tac-Toe. Train the
+model. Load the model and play against the computer. Note that
+multi-step training may take time.
+\end{tcolorbox}
 
 
 \section{Challenge}
@@ -688,7 +925,8 @@ groups of students can compete.
 Q-function player.
 \item Experiment with parameters used to create Q-function (number of
 games, $\gamma, \alpha, \epsilon$). Implement the game where two players
-with different $Q$-functions play against each other.
+with different $Q$-functions play against each other and run competition
+of models generated with different parameters.
 \end{enumerate}
 
 
