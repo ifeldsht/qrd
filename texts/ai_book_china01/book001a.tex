@@ -810,10 +810,12 @@ class rectangle(figure):
         return (self.w/2,self.h/2)
 
     def is_center(self,point):
-        return point[0]>0 and point[0]<w and point[1]>0 and point[1]<h
+        return point[0]>0 and point[0]<w and\
+               point[1]>0 and point[1]<h
 
     def __repr__(self):
-        return "{}, width={}, height={}".format(self.name,self.w,self.h)
+        return "{}, width={}, height={}"\
+               .format(self.name,self.w,self.h)
 \end{lstlisting}
 Note that \textbf{\_\_init\_\_} function now has different
 parameters. In the beginning it calls the corresponding function
@@ -837,10 +839,12 @@ class circle(figure):
 
     def is_center(self,point):
         return (point[0]-self.c[0])*(point[0]-self.c[0])+\
-               (point[1]-self.c[1])*(point[1]-self.c[1]) < self.r*self.r
+               (point[1]-self.c[1])*(point[1]-self.c[1]) \
+               < self.r*self.r
 
     def __repr__(self):
-        return "{}, radius={}, center={}".format(self.name,self.w,self.h)
+        return "{}, radius={}, center={}"\
+               .format(self.name,self.w,self.h)
 \end{lstlisting}
 Now let's learn how to use these classes:
 
@@ -873,6 +877,63 @@ for f in L:
 This section doesn't cover all aspects of classes in Python, it
 considers only very basic elements needed for the development.
 
+\section{Saving Python structures. JSON.}
+
+Sometimes you need to save results of calculations for future use.
+Sometimes the task is simple - a number can be saved in a text file,
+list of numbers may be a column in a comma-separated (CSV) file.
+What if we need to save a more complex, nested structure.
+Consider the following variable:
+
+\begin{lstlisting}[language=Python,style=codelst2]
+X = {}
+X["abc"] = [ 1, 2, [3, [4, 6, 6]], 7, 8 ]
+X["def"] = { "A":34.567, "B":98.765 }
+X["ghi"] = "Sample text"
+\end{lstlisting}
+Each element value of this dictionary has different type -- nested list,
+dictionary, string. We can introduce a custom solution for this particular
+case, but it may not work for other cases. It would be convenient to have
+a way to save arbitrary Python variables and then load them without
+doing task-specific parsing.
+
+The Python module \textbf{json} \footnote{JSON stands for
+JavaScript Object Notation. This format is
+is widely used for data exchange.}
+allows to do exactly this.
+Here is how we can save the variable \textbf{X} from the example above:
+we import new module, create a variable, open file for writing
+and save (dump) it using \textbf{json.dump} function.
+
+%%%
+\newpage
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: save to JSON file}]
+import json
+
+X = {}
+X["abc"] = [ 1, 2, [3, [4, 6, 6]], 7, 8 ]
+X["def"] = { "A":34.567, "B":98.765 }
+X["ghi"] = "Sample text"
+
+f = open("example.json","w")
+json.dump(X,f)
+f.close()
+\end{lstlisting}
+Run this code and make sure the file is created.
+Now we can load the variable:
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: load from JSON file}]
+import json
+
+f = open("example.json","r")
+Y = json.load(f)
+f.close()
+
+print Y
+\end{lstlisting}
+Try this and confirm that the variable \textbf{Y} corresponds to
+\textbf{X} from the previous example.
 
 
 \section{Coding problems}
