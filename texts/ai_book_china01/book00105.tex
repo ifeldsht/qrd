@@ -1,0 +1,85 @@
+\chapter{Artificial Neural Networks}
+
+\section{Background and basic ideas}
+
+This section will provide a very basic introduction to the
+field of Artificial Neural Networks (ANN or NN) - the technology
+with many decades of history and actively growing in last 10-15 years.
+The advances in high-performance computing and easy access
+to a variety of datasets made NN one of central technologies
+in machine learning and artificial intelligence.
+
+As the name suggests NN are somehow related to the structure of a brain.
+The history and relationships between developments in AI and in
+neuroscience are not subjects of this course but we'll see that NN
+structure and operations resemble two elements of biological
+neural systems:
+
+\begin{enumerate}
+\item threshold-like activation potential -- for a neuron to "fire"
+the electrical potential must exceed some level.
+\item neurons are interconnected -- they form a complex network.
+\end{enumerate}
+
+The ideas on NN in artificial intelligence only partially came from
+biology\footnote{The biological principles are usually seen in AI as
+metaphors rather than theoretical foundation.}. The main area
+where NN principles are rooted is the question of computability --
+the fundamental problem in computer science. Names of Turing,
+von Neumann, Kolmogorv are among many others who structured the field.
+
+Let's now formulate a basic problem. We have an input -- numerical value,
+a list of numerical values, image (can be presented as a list of numbers),
+etc. -- and an associated output. For example the input can be an image
+and the output a boolean value indicating that the image represents a cat.
+We want to build a model $F$ that can associate output to a given input.
+Fore the example above -- to find all images with cats.
+
+In other words, for input a set of inputs $X$ we want to find
+function $F$ that maps $X$ into a set of outputs $Y$:
+$$
+F: X \rightarrow Y
+$$
+Or for multi-dimensional $X$ (${x_i}, i=1..N$) and $Y$ (${y_i}, i=1..M$):
+
+\bigskip
+\begin{center}
+\begin{tabular}{c c c}
+$x_1\rightarrow$&     & $\rightarrow y_1$
+$\dots$         & $F$ & $\dots$ 
+$x_1\rightarrow$&     & $\rightarrow y_1$
+\end{tabular}
+\end{center}
+
+In this section we'll consider only one type of NN -- multi-layer
+perceptron, the generalization of single-layer perceptron. Let's
+start with the latter and first assume that there is only one output
+value (the doesn't affect the discussion as we can assume that we have
+an individual function $F$ for each output component):
+
+\bigskip
+\begin{center}
+\begin{tikzpicture}[node distance = 4mm]
+\node (adc) [draw,minimum size=24mm] {F};
+%
+\coordinate[above left = of adc.west]   (a1);
+\coordinate[below = of a1]              (a2);
+\coordinate[below = of a2]              (a3);
+\coordinate[below = of a3]              (a4);
+\coordinate[above right= of adc.east]   (b1);
+%
+\foreach \i [count=\xi from 1] in {$x_1$, $x_2$, $\dots$, $x_N$}
+    \draw[-latex'] (a\xi) node[left] {\i} -- (a\xi-| adc.west);
+\foreach \i [count=\xi from 1] in {$y$}
+    \draw[-latex'] (adc.east |- b\xi) -- (b\xi) node[right] {\i};
+\end{tikzpicture}
+\end{center}
+
+
+The single-layer perceptron scheme is:
+
+
+
+
+
+
