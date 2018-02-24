@@ -884,6 +884,12 @@ Two computer players play 100 thousand games updating the $Q$-function.
 When done the trained variable is saved for future use in JSON file.
 
 How to play:
+we first load \textbf{Q} from the file and then provide it as a
+parameter when initializing the game -- computer player will
+be using this pre-trained function.
+
+%%%%
+\newpage
 
 \begin{lstlisting}[language=Python,style=codelst2,caption={Tic-Tac-Toe: Q-learning, human against trained computer}]
 with open("ttt.json","r") as f:
@@ -893,9 +899,6 @@ player2 = human("O")
 game = TicTacToeGame(player1,player2,Q)
 game.play()
 \end{lstlisting}
-We first load \textbf{Q} from the file and then provide it as a
-parameter when initializing the game -- computer player will
-be using this pre-trained function.
 
 
 \begin{tcolorbox}

@@ -44,11 +44,21 @@ Or for multi-dimensional $X$ (${x_i}, i=1..N$) and $Y$ (${y_i}, i=1..M$):
 
 \bigskip
 \begin{center}
-\begin{tabular}{c c c}
-$x_1\rightarrow$&     & $\rightarrow y_1$
-$\dots$         & $F$ & $\dots$ 
-$x_1\rightarrow$&     & $\rightarrow y_1$
-\end{tabular}
+\begin{tikzpicture}[node distance = 4mm]
+\node (adc) [draw,minimum size=16mm] {F};
+%
+\coordinate[above left = of adc.west]   (a1);
+\coordinate[below = of a1]              (a2);
+\coordinate[below = of a2]              (a3);
+\coordinate[above right= of adc.east]   (b1);
+\coordinate[below = of b1]              (b2);
+\coordinate[below = of b2]              (b3);
+%
+\foreach \i [count=\xi from 1] in {$x_1$, $x_2$, $\dots$}
+    \draw[-latex'] (a\xi) node[left] {\i} -- (a\xi-| adc.west);
+\foreach \i [count=\xi from 1] in {$y_1$, $y_2$, $\dots$}
+    \draw[-latex'] (adc.east |- b\xi) -- (b\xi) node[right] {\i};
+\end{tikzpicture}
 \end{center}
 
 In this section we'll consider only one type of NN -- multi-layer
@@ -60,15 +70,14 @@ an individual function $F$ for each output component):
 \bigskip
 \begin{center}
 \begin{tikzpicture}[node distance = 4mm]
-\node (adc) [draw,minimum size=24mm] {F};
+\node (adc) [draw,minimum size=16mm] {F};
 %
 \coordinate[above left = of adc.west]   (a1);
 \coordinate[below = of a1]              (a2);
 \coordinate[below = of a2]              (a3);
-\coordinate[below = of a3]              (a4);
 \coordinate[above right= of adc.east]   (b1);
 %
-\foreach \i [count=\xi from 1] in {$x_1$, $x_2$, $\dots$, $x_N$}
+\foreach \i [count=\xi from 1] in {$x_1$, $x_2$, $\dots$}
     \draw[-latex'] (a\xi) node[left] {\i} -- (a\xi-| adc.west);
 \foreach \i [count=\xi from 1] in {$y$}
     \draw[-latex'] (adc.east |- b\xi) -- (b\xi) node[right] {\i};
@@ -76,9 +85,360 @@ an individual function $F$ for each output component):
 \end{center}
 
 
+\subsection{Single-layer perceptron}
+
 The single-layer perceptron scheme is:
+$$
+\begin{matrix}
+x_1 \rightarrow w_1\cdot x_1 & \\
+x_2 \rightarrow w_2\cdot x_2 & \\
+\dots &
+\rightarrow \sum_{i=1}^N w_i\cdot x_i + w_0 \rightarrow f(\sum_{i=1}^N w_i\cdot x_i + w_0) \rightarrow y \\
+x_i \rightarrow w_i\cdot x_i & \\
+\dots & 
+\end{matrix}
+$$
+We first calculate a weighted sum of input components
+and then calculate function $f(\cdot)$ of the sum.
+The choice of $f$ is crucial. It's easy to see that the linear function
+$f(x) = a\cdot x + b$ is the equivalent of linear dependence
+between $X$ and $Y$:
+$$
+f(\sum_{i=1}^N w_i\cdot x_i + w_0) =
+a\cdot\sum_{i=1}^N w_i\cdot x_i + a\cdot w_0 + b =
+\sum_{i=1}^N w'_i\cdot x_i + w'_0
+$$
+where $w'_i = a\cdot w_i$ and $w'_0 = a*w_0+b$.
+
+The common choice is a smoothed version of a step function
+(sigmoid). The step function:
+$$
+f(x) = \left\{ 
+\begin{array}{ll}
+0 & x < 0 \\
+1 & x \geq 0
+\end{array}
+\right.
+$$
+
+\begin{center}
+\begin{tikzpicture}
+\draw[->] (-2.2,0) -- (2.2,0) node[right] {$x$};
+\draw[->] (0,-0.5) -- (0,1.5) node[above] {$y$};
+\draw[domain=-2:0,smooth,ultra thick,variable=\x] plot ({\x},{0});
+\draw[domain=0:2,smooth,ultra thick,variable=\x] plot ({\x},{1});
+\end{tikzpicture}
+\end{center}
+
+Sigmoid:
+$$
+f(x) = \frac{1}{1+\exp(-x)}
+$$
+\begin{center}
+\begin{tikzpicture}
+\draw[->] (-3.2,0) -- (3.2,0) node[right] {$x$};
+\draw[->] (0,-0.5) -- (0,1.5) node[above] {$y$};
+%\draw[scale=0.5,domain=-3:3,smooth,variable=\x,blue] plot ({\x},{\x*\x});
+\draw[domain=-2:2,smooth,ultra thick,variable=\x] plot ({\x},{1/(1+exp(-4*\x))});
+\end{tikzpicture}
+\end{center}
+Sigmoid is close to the step function for big positive and negative values 
+of $x$, and smooth behaviour at $x=0$ makes it convenient for a number
+of applications.
+
+One of the other options is RELU (REctified Linear Unit):
+
+$$
+f(x) = \left\{ 
+\begin{array}{ll}
+0 & x < 0 \\
+x & x \geq 0
+\end{array}
+\right.
+$$
+\begin{center}
+\begin{tikzpicture}
+\draw[->] (-2.2,0) -- (2.2,0) node[right] {$x$};
+\draw[->] (0,-0.5) -- (0,2.2) node[above] {$y$};
+\draw[domain=-2:0,smooth,ultra thick,variable=\x] plot ({\x},{0});
+\draw[domain=0:2,smooth,ultra thick,variable=\x] plot ({\x},{\x});
+\end{tikzpicture}
+\end{center}
+
+This is not the complete list of functions used in NN,
+there exist functions with more complex and not always deterministic
+behaviour, but the idea remains the same -- some non-linear and
+often threshold-like function.
+
+Let's see how this works for simple dependencies between $X$ and $Y$.
+For the exercise we'll choose step function:
+and basic logical operations (NOT, AND, OR, XOR) as they are
+simple enough to implement without coding and get an idea of the
+approach.
+
+\textbf{Logical NOT}.
+Here is the table of possible cases\footnote{It's common to use 0
+to denote False and 1 to denote True}:
+\begin{center}
+\begin{tabular}{c|c}
+X & NOT X \\
+\hline
+1&0\\
+0&1
+\end{tabular}
+\end{center}
+Consider the following weights:
+$$
+w_0 = 0.5,\ \ w_1 = -1
+$$
+$$
+Y = f(-X+0.5)
+$$
+\begin{center}
+\begin{tabular}{c|c}
+X & Y \\
+\hline
+1&$f(-1\cdot 1+0.5)=f(-0.5)=0$ \\
+0&$f(-1\cdot 0+0.5)=f(0.5)=1$ 
+\end{tabular}
+\end{center}
+As we can see $Y$ corresponds to $NOT X$
+
+\textbf{Logical AND}. The same steps:
+\begin{center}
+\begin{tabular}{c|c|c}
+$X_1$ & $X_2$ & $X_1 AND X_2$ \\
+\hline
+0&0&0 \\
+0&1&0 \\
+1&0&0 \\
+1&1&1
+\end{tabular}
+\end{center}
+$$
+w_0 = -1, \ \ w_1 = 0.5, \ \ w_2 = 0.5
+$$
+$$
+Y = f(-1+0.5*X_1+0.5*X_2)
+$$
+\begin{center}
+\begin{tabular}{c|c|c}
+$X_1$ & $X_2$ & $Y$ \\
+\hline
+0&0&$f(-1+0.5\cdot 0+0.5\cdot 0) = f(-1) = 0$   \\
+0&1&$f(-1+0.5\cdot 0+0.5\cdot 1) = f(-0.5) = 0$ \\
+1&0&$f(-1+0.5\cdot 1+0.5\cdot 0) = f(-0.5) = 0$ \\
+1&1&$f(-1+0.5\cdot 1+0.5\cdot 1) = f(0) = 1$
+\end{tabular}
+\end{center}
+
+\textbf{Logical OR}. The same steps:
+\begin{center}
+\begin{tabular}{c|c|c}
+$X_1$ & $X_2$ & $X_1 OR X_2$ \\
+\hline
+0&0&0 \\
+0&1&1 \\
+1&0&1 \\
+1&1&1
+\end{tabular}
+\end{center}
+\begin{tcolorbox}
+\textbf{Assignment:} this case is similar to AND, find $W_0, \ W_1, \ W_2$.
+\end{tcolorbox}
+
+\textbf{Logical XOR (exclusive OR)}
+\begin{center}
+\begin{tabular}{c|c|c}
+$X_1$ & $X_2$ & $X_1 XOR X_2$ \\
+\hline
+0&0&0 \\
+0&1&1 \\
+1&0&1 \\
+1&1&0 \\
+\end{tabular}
+\end{center}
+
+Here we have a problem: single-layer perceptron cannot compute
+XOR for all four combinations of arguments.
+Let's see what's different between XOR and other two variable
+functions (AND, OR).To do this we'll 
+represent functions in the following way:
+
+\begin{center}
+AND
+
+\medskip
+\begin{tabular}{c|c}
+0&0 \\
+\hline
+0&1
+\end{tabular}
+\end{center}
+
+\medskip
+\begin{center}
+OR
+
+\medskip
+\begin{tabular}{c|c}
+0&1 \\
+\hline
+1&1
+\end{tabular}
+\end{center}
+
+\medskip
+\begin{center}
+XOR
+
+\medskip
+\begin{tabular}{c|c}
+0&1 \\
+\hline
+1&0
+\end{tabular}
+\end{center}
+
+We can find that zeros and ones in AND and OR form "islands"
+that can be separated by a single line -- just apply a ruler
+and find that you can have all zeros in AND above the ruler
+and one below the ruler. The same can be done for OR:
+
+\bigskip
+\begin{center}
+\begin{tikzpicture}
+\draw (-0.5,0) -- (1,1.5);
+\draw (0,1) circle (0.2);
+\fill[black] (0,0) circle (0.2);
+\fill[black] (1,0) circle (0.2);
+\fill[black] (1,1) circle (0.2);
+\end{tikzpicture}
+\end{center}
+\bigskip
 
 
+
+XOR is different -- you need at least two lines to separates
+zeros and ones:
+
+\bigskip
+\begin{center}
+\begin{tikzpicture}
+\draw (-0.5,0) -- (1,1.5);
+\draw (0,-0.5) -- (1.5,1);
+\draw (0,1) circle (0.2);
+\fill[black] (0,0) circle (0.2);
+\draw (1,0) circle (0.2);
+\fill[black] (1,1) circle (0.2);
+\end{tikzpicture}
+\end{center}
+
+ The linear separability is an important feature.
+It can be introduced in a formal way and it's possible to
+prove that a single layer perceptron cannot implement non-linear-separable
+function.
+
+\subsection{Multi-layer perceptron}
+Perceptron structure can include a hidden layer or layers. 
+
+\begin{tikzpicture}[
+plain/.style={draw=none,fill=none,},
+net/.style={matrix of nodes, nodes={draw,circle,inner sep=8.5pt},
+    nodes in empty cells,column sep=0.6cm,row sep=-11pt},
+>=latex]
+
+\matrix[net] (mat)
+{
+|[plain]| \parbox{1cm}{\centering Input\\layer} & |[plain]| \parbox{1cm}{\centering Hidden\\layer} & |[plain]| \parbox{1cm}{\centering Output\\layer} \\
+    |[plain]| & \\
+    & |[plain]| \\
+    |[plain]| & &  \\
+    & |[plain]| \\
+    |[plain]| & &  \\
+    & |[plain]| \\
+    |[plain]| & \\
+};
+\foreach \ai [count=\mi ]in {3,5,7}
+\draw[<-] (mat-\ai-1) -- node[above] {$x_{\mi}$} +(-2cm,0);
+\foreach \ai in {3,5,7}
+{\foreach \aii in {2,4,...,8}
+    \draw[->] (mat-\ai-1) -- (mat-\aii-2);
+}
+\foreach \ai in {2,4,...,8}
+\draw[->] (mat-\ai-2) -- (mat-6-3);
+
+\foreach \ai in {2,4,...,8}
+\draw[->] (mat-\ai-2) -- (mat-4-3);
+
+\foreach \ai [count=\mi ]in {4,6}
+\draw[->] (mat-\ai-3) -- node[above] {$y_{\mi}$} +(2cm,0);
+\foreach \ai in {3,5,7}
+{\foreach \aii in {2,4,...,8}
+    \draw[->] (mat-\ai-1) -- (mat-\aii-2);
+}
+\end{tikzpicture}
+
+
+
+Calculations of output values include two steps:
+first we calculate outputs of hidden layer nodes and then use
+them to calculate output. The output $z_k$ of $k$-th node of the
+hidden layer ($k=1..N_h$):
+$$
+z_k = f( \sum_{i=1}^N w_{ik}^1\cdot x_i + w_{0k}^1 )
+$$
+where $w_{ik}^1$ is the weight of connection between $i$-th
+input node and $k$-th hidden layer node. Output values $y_j$ are:
+$$
+y_j = f( \sum_{i=1}^{N_h} w_{kj}^2\cdot z_k + w_{0j}^2 )
+$$
+Note that the upper index 2 in $w_{kj}^2$ doesn't indicate
+square of the number, it refers to the second set of weights --
+weights between hidden layer nodes and output nodes.
+
+We can create NN with more than one hidden layer, but the 
+idea remains the same: we want to build a layered structure
+Where the output of a node is a function of a weighted sum of
+of outputs of the previous layer nodes. Those weights have to be
+calculated in the process known as "learning": given the set of
+input/output values we want to choose weights so that the total
+error of calculated outputs is minimal. For example, if we have
+1000 images and 500 of them are with cats we want to train NN
+that can correctly identify the most of those 500 images
+\footnote{At this moment we do not consider the question of
+using NN in- and out-of-sample.}.
+
+To do this we can introduce a formal measure of the error that
+depends on the set of input/output values $X$ and $Y$ and
+all weights $W$ ($w^{k}_{ij}$):
+$$
+ERR(X,Y,W)
+$$
+The learning is the procedure of finding weights $W$ that minimize
+the error:
+$$
+ERR(X,Y,W) \rightarrow\min_{W}
+$$
+
+The common approach to NN training is called back propagation.
+The idea and implementation of the approach is out of the scope of
+this course as they require understanding of basic optimization
+techniques. Instead we'll be using programming libraries where
+all required functionality is available without going deep into
+the theory.
+
+We'll consider multi-layer perceptron only -- the course
+doesn't cover important and interesting cases of Convolutional NN (CNN),
+Recurrent NN (RNN), Long-Short Term Memory (LSTM),
+Hopfield networks (RNN with binary node states), and others.
+Model-specific modifications do not change the idea of the learning
+ -- we want to choose weights and sometimes
+other parameters to minimize the output approximation error.
+
+\begin{tcolorbox}
+\textbf{Python:} learn about \textbf{scikit-learn} library.
+\end{tcolorbox}
 
 
 
