@@ -436,6 +436,298 @@ Model-specific modifications do not change the idea of the learning
  -- we want to choose weights and sometimes
 other parameters to minimize the output approximation error.
 
+\section{Neural networks and rules of "Life"}
+
+In the previous sections we were analysing systems with known
+behaviour -- mazes, 8-pazzle, Tic-Tac-Toe game. Now let's try to identify
+rules from observations: we'll be looking at some system and trying
+to replicate it's behaviour without knowing underlying rules.
+
+As
+"Life" - the game introduced by Conway
+has simple rules, resulting in interesting behaviour. "Life"
+is an example of cellular automata -- the system that consists
+of cells on a rectangular grid with behaviour of a cell defined
+by its neighbors:
+
+\bigskip
+\begin{center}
+\begin{tabular}{c|c|c|c|c}
+ & & & & \\
+\hline
+ & $\cdot$ & $\cdot$ & $\cdot$ & \\
+\hline
+ & $\cdot$ & \cellcolor{black} & $\cdot$  & \\
+\hline
+ & $\cdot$ & $\cdot$ & $\cdot$ & \\
+\hline
+ & & & & 
+\end{tabular}
+\end{center}
+\bigskip
+
+Each cell can be alive or dead. A cell changes the
+state depending on the own state and the state of 8 neighbors:
+Rules of the state change:
+
+\begin{enumerate}
+\item A live cell remains a live cell if it has 2 or 3 live neighbors, otherwise
+it dies.
+\item A dead cell becomes a live cell if it has 3 live neighbors,
+otherwise it remains dead.
+\end{enumerate}
+
+Here are several examples of the static structures - they do not
+change:
+
+\textbf{Block} -- each live cell has three live neighbors, each dead cell
+has not more than two live cells:
+\begin{center}
+\begin{tabular}{c|c|c|c}
+ & & & \\
+\hline
+ & \cellcolor{black} & \cellcolor{black} & \\
+\hline
+ & \cellcolor{black} & \cellcolor{black} & \\
+\hline
+ & & &  
+\end{tabular}
+\end{center}
+\bigskip
+
+\textbf{Boat} (confirm that this configuration is a static one):
+\begin{center}
+\begin{tabular}{c|c|c|c|c}
+ & & & & \\
+\hline
+ & \cellcolor{black} & \cellcolor{black} & & \\
+\hline
+ & \cellcolor{black} & & \cellcolor{black} & \\
+\hline
+ & & \cellcolor{black} & & \\
+\hline
+ & & & & 
+\end{tabular}
+\end{center}
+\bigskip
+
+Configurations with periodic behaviour:
+
+\textbf{Blinker}
+\begin{center} %%% blinker - begin
+
+\begin{tabular}{cccccc}
+
+\begin{tabular}{c|c|c|c|c}
+ & & & & \\
+\hline
+ & & \cellcolor{black} & & \\
+\hline
+ & & \cellcolor{black} & & \\
+\hline
+ & & \cellcolor{black} & & \\
+\hline
+ & & & & 
+\end{tabular}
+
+&
+$\rightarrow$
+&
+
+\begin{tabular}{c|c|c|c|c}
+ & & & & \\
+\hline
+ & & & & \\
+\hline
+ & \cellcolor{black} & \cellcolor{black} & \cellcolor{black} & \\
+\hline
+ & & & & \\
+\hline
+ & & & & 
+\end{tabular}
+
+&
+$\rightarrow$
+&
+
+\begin{tabular}{c|c|c|c|c}
+ & & & & \\
+\hline
+ & & \cellcolor{black} & & \\
+\hline
+ & & \cellcolor{black} & & \\
+\hline
+ & & \cellcolor{black} & & \\
+\hline
+ & & & & 
+\end{tabular}
+
+&
+$\rightarrow\dots$
+\end{tabular}
+\end{center} %%% blinker - end
+\bigskip
+
+\textbf{Toad} 
+\begin{center} %% Toad -- begin
+\begin{tabular}{cccc}
+
+\begin{tabular}{c|c|c|c|c|c}
+ & & & & &\\
+\hline
+ & & & \cellcolor{black} & & \\
+\hline
+ & \cellcolor{black} & & & \cellcolor{black} & \\
+\hline
+ & \cellcolor{black} & & & \cellcolor{black} & \\
+\hline
+ & & \cellcolor{black} & & & \\
+\hline
+ & & & & &
+\end{tabular}
+
+&
+$\rightarrow$
+&
+
+\begin{tabular}{c|c|c|c|c|c}
+ & & & & &\\
+\hline
+ & & & & & \\
+\hline
+ & & \cellcolor{black} & \cellcolor{black} & \cellcolor{black} & \\
+\hline
+ & \cellcolor{black} & \cellcolor{black} & \cellcolor{black} & & \\
+\hline
+ & & & & & \\
+\hline
+ & & & & &
+\end{tabular}
+&
+$\rightarrow\dots$
+
+\end{tabular}
+\end{center} %% Toad -- end
+
+\begin{tcolorbox}
+\textbf{Assignments:}
+\begin{enumerate}
+\item Use paper to draw changes in the states for the glider:
+\begin{center}
+\begin{tabular}{c|c|c|c|c}
+ & & & & \\
+\hline
+ & & \cellcolor{black} & & \\
+\hline
+ & & & \cellcolor{black} & \\
+\hline
+ & \cellcolor{black} & \cellcolor{black} & \cellcolor{black} & \\
+\hline
+ & & & & 
+\end{tabular}
+\end{center}
+\item Write Python function that returns new state for the central cell
+on a 3x3 grid.
+\item Write Python function that returns new state for an cell
+given by coordinates (i,j) on a board:
+
+\begin{center}
+\begin{tabular}{c|c|c|c|c}
+ & & & & \\
+\hline
+ & (i-1,j-1) & (i-1,j) & (i-1,j+1) & \\
+\hline
+ & (i,j-1) & \textbf{(i,j}) & (i,j+1) & \\
+\hline
+ & (i+1,j-1) & (i+1,j) & (i+1,j+1) & \\
+\hline
+ & & & & 
+\end{tabular}
+\end{center}
+
+\end{enumerate}
+\end{tcolorbox}
+
+A cell on a boundary has only 5 neighbors
+which may make it die faster than cells inside:
+
+\begin{center}
+\begin{tabular}{c|c|c|c|c}
+ & & & & \\
+\hline
+ & & & & \\
+\hline
+ & $\cdot$ & $\cdot$ & $\cdot$ & \\
+\hline
+ & $\cdot$ & \cellcolor{black} & $\cdot$ & \\
+\hline
+\end{tabular}
+\end{center}
+
+To avoid this we can
+introduce periodic conditions: we'll assume that neighbors of a cell
+on a border include also three cells on the opposite border:
+
+\begin{center}
+\begin{tabular}{c|c|c|c|c}
+\hline
+ & $\cdot$ & $\cdot$ & $\cdot$ & \\
+\hline
+ & & & & \\
+ & & & & \\
+\hline
+ & $\cdot$ & $\cdot$ & $\cdot$ & \\
+\hline
+ & $\cdot$ & \cellcolor{black} & $\cdot$ & \\
+\hline
+\end{tabular}
+\end{center}
+
+In this case the following starting configuration doesn't disappear
+(live cells have only one live neighbor without taking into account
+cells on the opposite border), but becomes an equivalent to the "Block"
+(see above).
+
+\begin{center}
+\begin{tabular}{c|c|c|c|c|c}
+\hline
+ & & \cellcolor{black} & \cellcolor{black} & & \\
+\hline
+ & & & & & \\
+\hline
+ & & & & & \\
+\hline
+ & & & & & \\
+\hline
+ & & \cellcolor{black} & \cellcolor{black} & & \\ 
+\hline
+\end{tabular}
+\end{center}
+
+The same conditions can be applied to left and right borders.
+
+\begin{tcolorbox}
+\textbf{Assignments:}
+\begin{enumerate}
+\item Write Python function that returns new state for an cell
+given by coordinates (i,j) on a board with periodic conditions.
+\item Write Python function that updates a board of an arbitrary
+size. Assume periodic conditions and add function that prints
+a board (use space symbol for a dead cell and asterisk for a live cell).
+\end{enumerate}
+\end{tcolorbox}
+
+
+
+
+
+
+
+
+
+
+
+
 \begin{tcolorbox}
 \textbf{Python:} learn about \textbf{scikit-learn} library.
 \end{tcolorbox}
