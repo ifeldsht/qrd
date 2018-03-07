@@ -753,30 +753,34 @@ the list [1,0,1,0,0,1,0,1,0] corresponds to
 Ones correspond to live cells and zeros to dead cells.
 
 Here is how we can create all possible combinations of 0s and 1s
-for a list of 9 elements:
-\begin{lstlisting}[language=Python,style=codelst2,caption={All 0-1 combinations on a board 3x3}]
-from itertools import permuations
-from random import shuffle
-
-all_boards = []
-for i in range(10):
-    x = [0]*i + [1]*(9-i)
-    all_boards += list(set(permitations(x,9)))
-
-shuffle(all_boards)
-\end{lstlisting}
+for a list of 9 elements.
 This code is using function \textbf{permutations} from the module
 \textbf{itertools}\footnote{\textbf{itertools} is a part of Python and 
 doesn't require installation.}. In the loop we are creating a list
 of 9 elements with $n$ zeros and $9-n$ ones for $n$ from 0 to 9,
 calculate all possible permutations, and add new combinations
-of zeros and ones to the list \textbf{all_boards}.
+of zeros and ones to the list \textbf{all\_boards}.
 Think how else you can do this and how many configurations are possible.
+
+%%%%
+\newpage
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={All 0-1 combinations on a board 3x3}]
+from itertools import permutations
+from random import shuffle
+
+all_boards = []
+for i in range(10):
+    x = [0]*i + [1]*(9-i)
+    all_boards += list(set(permutations(x,9)))
+
+shuffle(all_boards)
+\end{lstlisting}
 
 The last step shuffles the list of boards to randomize the
 order of elements  -- later we'll be splitting
 this list and we don't want to have any special order. 
-Before we call the \textbf{shuffle} function the list \textbf{all_boards}
+Before we call the \textbf{shuffle} function the list \textbf{all\_boards}
 is ordered by the number of zeros - first element doesn't have
 zeros, next go elements with 1 zero and 8 ones, then with 2 zeros and
 7 ones, etc.
@@ -807,9 +811,129 @@ new_centers = [new_state(x) for x in all_boards]
 \end{lstlisting}
 
 \begin{tcolorbox}
-\textbf{Python:} learn about \textbf{scikit-learn} library.
+\textbf{Python:} learn about \textbf{scikit-learn} library and
+using it to train a multi-layer perceptron.
 \end{tcolorbox}
 
+Now we have all inputs and all outputs and can train NN: 
 
+\begin{lstlisting}[language=Python,style=codelst2,caption={Training NN}]
+X = np.array(all_boards)
+Y = np.array(new_centers)
 
+nn = MLPRegressor(hidden_layer_sizes=(9),
+                  activation='logistic', 
+                  solver='lbfgs')
 
+n = nn.fit(X,Y)
+
+Y_predicted = nn.predict(X)
+predicted_centers = [(1 if c>0.5 else 0) \
+                     for c in Y_predicted.tolist()]
+\end{lstlisting}
+We are creating \textbf{numpy} arrays \textbf{X} and \textbf{Y}
+from inputs and outputs, initializing NN (variable \textbf{nn}),
+training NN, and getting predicted outputs (\textbf{Y\_predicted}).
+Outputs are not zeros and ones, but we can create this
+representation using 0.5 as a threshold: output below 0.5 is
+considered to be 0 and above 0.5 corresponds to 1.
+
+\begin{tcolorbox}
+\textbf{Assignments:}
+\begin{enumerate}
+\item Combine all code elements discussed above -- generation
+of all possible boards 3x3, calculation of new states of the
+central element, NN training, and calculation of predicted centers.
+Run the program to confirm it works.
+\item Add calculation of the total error -- the number of cases
+when centers used to train the NN (\textbf{Y}) do not match 
+predicted centers.
+\item Experiment with the NN structure -- change initialization
+parameter \textbf{hidden\_layer\_sizes} and analyse its influence
+on the accuracy.
+\end{enumerate}
+\end{tcolorbox}
+
+We were using all possible inputs and all possible outputs
+to train NN. This is a valid approach as we know that no other
+input is possible. For many other applications we have
+observations that do not cover all possible inputs/outputs.
+In this case the model trained on known data will be applied
+to unknown inputs. We can emulate this by splitting our
+observations (all inputs and outputs) into two parts -- 
+for training and for testing. 
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Splitting data into training and testing datasets}]
+X_training = np.array(all_boards[:400])
+X_testing  = np.array(all_boards[400:])
+Y_training = np.array(new_centers[:400])
+Y_testing  = np.array(new_centers[400:])
+
+nn = MLPRegressor(hidden_layer_sizes=(9),
+                  activation='logistic', 
+                  solver='lbfgs')
+
+n = nn.fit(X_training,Y_training)
+
+Y_training_predicted = nn.predict(X_training)
+Y_testing_predicted  = nn.predict(X_testing)
+predicted_centers_training = [(1 if c>0.5 else 0) \
+                     for c in Y_training_predicted.tolist()]
+predicted_centers_testing  = [(1 if c>0.5 else 0) \
+                     for c in Y_testing_predicted.tolist()]
+\end{lstlisting}
+We are taking first 400 inputs/outputs to train NN
+and remaining inputs/outputs to test the model.
+
+\begin{tcolorbox}
+\textbf{Assignment:} 
+\begin{enumerate}
+\item Change the program from the previous
+assignment to support splitting data into training and testing
+datasets. 
+\item Add calculation of the accuracy separately for
+training data (so called in-sample accuracy) and for
+testing data (out-of-sample). 
+\item Experiment with relative sizes of training and testing datasets.
+Change "400" from the code above to other values and analyze how
+in-sample and out-of-sample accuracies change.
+\end{enumerate}
+\end{tcolorbox}
+
+Splitting known data into training and testing datasets is
+a very important technique -- it's used to prevent overfitting.
+If you have a model with many parameters you can have high
+in-sample accuracy and low out-of-sample accuracy. 
+To choose the model structure (number of elements in hidden
+layers in the case of NN) and training procedure that reduces 
+chances of overfitting the analysis of relative accuracy
+in- and out-of-sample is widely used not only for NN, but
+virtually for all machine learning techniques.
+
+\section{Challenges}
+
+In this chapter you've learned basic ideas of using neural networks
+to reproducing the rules of the Game of Life from observations
+of the central cell state changes on the board 3x3.
+The challenge now is to apply the same approach on a bigger scale.
+
+\begin{enumerate}
+\item Implement the Game of Life on a big board (10x10 or bigger)
+with periodic boundary conditions. Prepare two versions: based on 
+the original rules and on rules generated by trained NN. Confirm that
+for any initialization these two versions produce the same configurations.
+\item Implement the Game of Life on a big board (start with 10x10)
+with periodic boundary conditions. Train NN that takes as an input
+the configuration of the entire boards and as an output the configuration
+of the entire board on the next step. For the board 10x10 both input
+and output are 100-dimensional vectors. Create a training dataset by
+randomly initializing the board and making one move. Create a testing
+dataset in the same way. You can compare the accuracy of your solutions 
+by comparing results of applying trained models to dataset 
+specially generated for the competition.
+\item The same as above, but now outputs are boards after 
+\textbf{two steps} --
+to generate dataset you first need to initialize the board 
+(this configurations is your input) and then make two steps 
+(resulting configuration is your output).
+\end{enumerate}

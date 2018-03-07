@@ -956,6 +956,92 @@ to install the library. \textbf{scikit-learn} depends on two other
 libraries -- \textbf{numpy} and \textbf{scipy} -- 
 they'll be installed as well.
 
+\textbf{numpy} library provides high-performance implementation
+of arrays and related functionality. In this course we'll be using
+\textbf{numpy} arrays together with Python lists. \textbf{numpy}
+array can be constructed from a list and vice versa:
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: lists and \textbf{numpy} arrays}]
+import numpy as np
+
+# Python list:
+L = [1,2,3,4,5]
+print type(L), L
+
+# numpy array from the list:
+A = np.array(L)
+print type(A), A
+
+# Python list from numpy array:
+L2 = A.tolist()
+print type(L2), L2
+\end{lstlisting}
+The constructor \textbf{np.array} takes as a parameter a Python list.
+\textbf{array} member function \textbf{tolist()} returns the list.
+
+\textbf{scikit-learn} provides a lot of functionality and we'll
+not cover all use cases, but the basic work flow in the case we
+have an inputs \textbf{X} and associated outputs \textbf{Y}
+and want to build a model that can derive output based on provided
+input includes several steps:
+\begin{enumerate}
+\item Initialize a model -- choose the type of the model and parameters.
+\item Train the model (fit) - provide the model with inputs and 
+outputs and run the optimization to reduce the error.
+\item Use the model to check the accuracy for data used in training
+(in-sample) and for data not use in training (out-of-sample).
+\end{enumerate}
+
+Here is example of using \textbf{scikit-learn} to train
+multi-layer perceptron and get results:
+
+%%%%%%
+\newpage
+
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: using \textbf{scikit-learn} to train multi-layer perceptron}]
+import numpy as np
+from sklearn.neural_network import MLPRegressor
+
+# .... 
+# X_input and Y_output are Python lists
+
+X = np.array(X_input)
+Y = np.array(Y_output)
+
+nn = MLPRegressor(hidden_layer_sizes=(9))
+n = nn.fit(X,Y)
+
+Y_predicted = nn.predict(X)
+\end{lstlisting}
+\textbf{MLPRegressor} is one of models, implemented in 
+\textbf{scikit-learn}. In this example we are creating an object
+\textbf{nn} -- perceptron with one hidden layer that contains
+9 neurons. For all other parameters -- type of activation function,
+optimization algorithm -- the model takes default values
+\footnote{Please review online documentation for details}.
+In the code above we are creating inputs and outputs 
+as \textbf{numpy} arrays, initializing \textbf{MLPRegressor}, and
+fitting the model. \textbf{Y\_predicted} contains results of
+applying the trained model to inputs \textbf{X}. 
+\textbf{Y\_predicted} can be compared with \textbf{Y} to
+evaluate the accuracy.
+
+For assignments in this course we'll need \textbf{MLPRegressor}
+initialized with more parameters:
+\begin{lstlisting}[language=Python,style=codelst2,caption={Python: initalization of \textbf{MLPRegressor}}]
+...
+
+nn = MLPRegressor(hidden_layer_sizes=(9),
+                  activation='logistic', 
+                  solver='lbfgs')
+...
+\end{lstlisting}
+Activation \textbf{'logistic'} refers to $f(x) = 1/(1+exp(-x))$ 
+(see the section on neural networks for details). Solver
+\textbf{'lbfgs'} is an optimization algorithm
+\footnote{LBFGS: Limited-memory Broyden-Fletcher-Goldfarb-Shanno}. 
+This course doesn't cover details of optimization algorithms.
+
 \section{Coding problems}
 
 The best way to build practical skills in programming is to do
