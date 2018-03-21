@@ -1,5 +1,7 @@
 \documentclass[12pt]{article}
 \usepackage{cite}
+\usepackage{tikz}
+\usepackage{tikz-qtree}
 
 \title{Parse-tree-grams in word embedding.}
 \author{Ilya Feldshteyn}
@@ -28,8 +30,11 @@ This approach is easy to implement and scale,
 but the view of a text as a flat flow of words has
 certain drawbacks. Text has a hierarchical structure
 and not all words co-occurrences are equally important.
+The problem is not new, some efforts were made to take
+into account the issue 
+(see for example \cite{DBLP:journals/corr/AvrahamG17}).
 
-To address this issue we consider a modification of
+In this article we consider a modification of
 skip-gram that takes into account the hierarchical structure of the
 text. Words co-occurrence is considered with respect to a
 word position in a parse tree -- words form a parse-tree-gram 
@@ -37,19 +42,20 @@ word position in a parse tree -- words form a parse-tree-gram
 Instead of words in a fixed-size window we are first building
 a parse tree of a sentence and analyze its structure.
 
-
 To evaluate the effect of using PT-grams we've built
 two word2vec embeddings -- using skip-grams and PT-grams representations --
-and compared their performance on analogy test ([]).
+and compared their performance on analogy test 
+(\cite{DBLP:journals/corr/abs-1301-3781}).
 
 \section{Calculations}
 
 For the purposes of this study we were using relatively small
-corpus of 1 million sentences from Wikipedia (???link),
+corpus of 1 million sentences from Wikipedia (\cite{leipzigcorpora}),
 Stanford CoreNLP (\cite{corenlp}) to build parse trees, and
 Tensorflow (\cite{tensorflow}) for word2vec program.
 
-Parse trees split into subtrees form variable-size PT-grams.
+Parse trees split into subtrees form variable-size PT-grams
+(see Appendix for an example).
 Average size of subtrees is 4.2 words.
 This size was used as a reference to construct
 window of comparable size (-2,+2) for skip-grams. 
@@ -69,6 +75,20 @@ for the same epochs.
 
 \bibliographystyle{unsrt}
 \bibliography{ptgrams1}
+
+\newpage
+\section{Appendix. PT-grams: example}
+
+Below is the parse tree for the following sentence:
+\textit{According to one of the legends in the Acts, Thomas was at first reluctant to accept this mission, but the Lord appeared to him in a night vision and said, "Fear not, Thomas".} 
+\footnote{Wikipedia article about Thomas the Apostle}
+
+\begin{scriptsize}
+\tikzset{grow'=right} 
+\tikzset{every tree node/.style={anchor=base west}} 
+\Tree[.ROOT [.S [.S [.PP [.VBG According ] [.PP [.TO to ] [.NP [.NP [.CD one ] ] [.PP [.IN of ] [.NP [.NP [.DT the ] [.NNS legends ] ] [.PP [.IN in ] [.NP [.DT the ] [.NNS Acts ] ] ] ] ] ] ] ] [.NP [.NNP Thomas ] ] [.VP [.VBD was ] [.PP [.IN at ] [.NP [.NP [.JJ first ] ] [.ADJP [.JJ reluctant ] [.S [.VP [.TO to ] [.VP [.VB accept ] [.NP [.DT this ] [.NN mission ] ] ] ] ] ] ] ] ] ]  [.CC but ] [.S [.NP [.DT the ] [.NN Lord ] ] [.VP [.VP [.VBD appeared ] [.PP [.TO to ] [.NP [.PRP him ] ] ] [.PP [.IN in ] [.NP [.DT a ] [.NN night ] [.NN vision ] ] ] ] [.CC and ] [.VP [.VBD said ] [.S [.NP [.NP [.NN Fear ] [.RB not ] ] [.NP [.NNP Thomas ] ] ] ] ] ] ] ] ]
+
+\end{scriptsize}
 
 
 \end{document}
