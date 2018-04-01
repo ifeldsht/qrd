@@ -6,14 +6,19 @@
 \usepackage{pgfplots}
 
 \title{Parse-tree-grams in word embedding.}
-\author{Ilya Feldshteyn}
+\author{Ilya Feldshteyn\\ ifeldsht@gmail.com}
 
  
 \begin{document}
 \maketitle
 
 \begin{abstract}
-We are introducing parse-tree-grams (PT-grams)
+We are introducing parse-tree-grams (PT-grams) as the way
+to group words for word embedding techniques.
+PT-gram and 
+skip-gram approaches were compared on the corpus of 1 million 
+sentences. We found that PT-grams provide significant 
+(45\%) increase in accuracy on analogy tests.
 \end{abstract}
 
 
@@ -25,15 +30,14 @@ Words systematically found close to each other in texts
 allows us to think about a common context. Word
 embedding techniques -- word2vec and its modifications --
 associate a word with a vector in a multi-dimensional
-space and words used together in different texts are
+space and words commonly used together are
 expected to be close in that space.
 
 This approach is easy to implement and scale,
 but the view of a text as a flat flow of words has
 certain drawbacks. Text has a hierarchical structure
 and not all words co-occurrences are equally important.
-The problem is not new, some efforts were made to take
-into account the issue
+The problem is not new, some efforts were made to address the issue
 (see for example \cite{DBLP:journals/corr/AvrahamG17}).
 
 In this article we consider a modification of
@@ -42,7 +46,7 @@ text. Words co-occurrence is considered with respect to a
 word position in a parse tree -- words form a parse-tree-gram
 (PT-gram) if they belong to the same sub-tree of a parse tree.
 Instead of words in a fixed-size window we are first building
-a parse tree of a sentence and analyze its structure. This gives
+a parse tree of a sentence and analyzing its structure. This gives
 us several variable-size windows for the same part of a sentence
 or a sentence as a whole.
 
@@ -108,7 +112,7 @@ to skip-gram trained on the same dataset with the same parameters.
 Figure 1 presents the accuracy for both models depending on the
 position of the expected word in the list sorted by the distance.
 $N=1$ corresponds to the case when the expected word is the first in the
-list, $N=2$ -- the word is among two closest, etc. Results for
+list, $N=2$ -- the word is among two closest word, etc. Results for
 commonly used $N=4$ (expected word is among four closest) are 0.36 for
 skip-gram and 0.55 for PT-grams.
 
@@ -136,7 +140,7 @@ for a corpus of documents may also be sensitive to the quality of texts
 One of PT-gram model weaknesses is that the tree built for one sentence
 doesn't take into account words in the surrounding sentences. The issue can
 be addressed by using co-references between elements of different
-sentences -- taking into account larger scale text structure may
+sentences. Larger scale text structure may
 provide additional increase in accuracy.
 
 
