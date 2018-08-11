@@ -6,3 +6,6 @@
 *.bak
 *.swp
 *.zip
+python/*.*
+images/*.*
+word/edit/*.*
