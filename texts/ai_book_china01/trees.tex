@@ -1,0 +1,23 @@
+\documentclass{book}
+\usepackage{geometry}
+\usepackage{qtree}
+\usepackage{float}
+
+\begin{document}
+
+\Tree [ .1  2  3 ] \\
+
+\Tree [ .A  B  C ] \\
+
+\Tree [ .1 [  .2  3 4 ] [ .5 6 ] ] \\
+
+\Tree [ .11 [ .8 1 [ .2 5 78 ] ] [ .7 3 [ .93 6 40 ] ] ] \\
+
+\Tree [ .1  2 [ .3 6 ] [ .4 [ .7 8 9 ] ] [ .5 [ .10 [ .11 [ .12 [ .13 14 15 ] ] ] ] ] ] \\
+
+\Tree [ .A [ .B [ .E K L ] [ .F [ .M T U ] ] ]  
+           [ .C [ .G N ] [ .H O P ] ]
+           [ .D [ .I [ .Q V W ] ] [ .J [ .R X ] [ .S Y Z ] ] ]
+      ]
+
+\end{document}
